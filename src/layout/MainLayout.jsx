@@ -1,19 +1,18 @@
-// Outlet adalah komponen placeholder (tempat kosong) dari react-router-dom.
-// Ini bertindak sebagai titik masuk di mana child routes (komponen halaman anak) akan dirender.
-import { Outlet } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom"; // Tambahkan useLocation
 import Header from "../components/Header";
 import Sidebar from "../components/Sidebar";
 
 export default function MainLayout() {
-    // PENJELASAN STRUKTUR LAYOUTING FLEXBOX:
-    // 1. Konsep "lg:flex-row": Ini adalah pendekatan Mobile-First. 
-    //    Secara default (di HP), div ini memakai 'flex-col' (Sidebar di atas, Konten di bawah).
-    //    Saat layar mencapai ukuran laptop ('lg'), layout berubah menjadi 'flex-row' (Sidebar di kiri, Konten di kanan).
-    // 2. Konsep "flex-1": Diterapkan pada div konten. Ini memberitahu browser agar elemen ini meregang (grow) 
-    //    dan mengambil sisa ruang flexbox yang tersedia setelah dikurangi ukuran lebar Sidebar.
-    // 3. <Outlet />: Tanpa komponen ini, halaman Dashboard atau Bookings tidak akan pernah muncul di layar.
+    const location = useLocation(); // Mendapatkan URL saat ini
+
+    // LOGIKA BACKGROUND DINAMIS:
+    // Jika URL adalah "/sales", pakai warna oranye gelap (#FFC794)
+    // Selain itu (misal "/"), pakai warna cream (#FFF4EA)
+    const bgColorClass = location.pathname === "/sales" ? "bg-[#FFC794]" : "bg-[#FFF4EA]";
+
     return (
-        <div className="min-h-screen bg-[#FFF4EA] font-poppins text-gray-800">
+        // Masukkan variabel bgColorClass ke dalam className
+        <div className={`min-h-screen ${bgColorClass} font-poppins text-gray-800 transition-colors duration-300`}>
             <div className="flex min-h-screen flex-col lg:flex-row">
                 <Sidebar />
                 <div id="main-content" className="flex-1 p-4 md:p-6 xl:p-8">

@@ -1,42 +1,34 @@
-import { FaHome, FaBed, FaUserFriends, FaSignOutAlt, FaSignInAlt, FaBan, FaBox } from "react-icons/fa";
-// NavLink mirip dengan Link, namun NavLink memiliki prop 'isActive'.
-// Prop ini tahu apakah rute/URL yang tertulis pada atribut 'to' sama dengan URL yang sedang dikunjungi user.
-import { NavLink, useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { FaHome, FaBed, FaUserFriends, FaSignOutAlt, FaSignInAlt, FaBan, FaBox, FaChevronDown, FaChevronUp } from "react-icons/fa";
+import { NavLink, useNavigate, useLocation } from "react-router-dom";
 
 export default function Sidebar() {
   const navigate = useNavigate();
-  // Validasi Otorisasi (Auth Check):
-  // Membaca memori dari localStorage dengan key "isLoggedIn". Jika string yang didapat adalah "true",
-  // maka variabel boolean isLoggedIn akan diset ke true. 
+  const location = useLocation();
+  
+  // STATE UNTUK DROPDOWN HOME
+  // Default true agar langsung terbuka (bisa diset false jika ingin tertutup di awal)
+  const [isHomeOpen, setIsHomeOpen] = useState(true);
+
   const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
 
-  // KONSEP EVENT HANDLER:
   const handleAuthAction = () => {
       if (isLoggedIn) {
-          // LOGOUT LOGIC:
-          // 1. Menghapus sesi kredensial dari browser dengan removeItem.
           localStorage.removeItem("isLoggedIn");
-          // 2. window.location.href BUKAN React Router. Ini native dari Javascript.
-          // Digunakan di sini agar aplikasi "memaksa" browser me-refresh dan menghapus sisa state global jika ada.
           window.location.href = "/"; 
       } else {
-          // LOGIN LOGIC:
           navigate("/login"); 
       }
   };
 
-  // KONSEP DYNAMIC STYLING (Kelas Dinamis):
-  // Fungsi ini menerima parameter destructured { isActive }.
-  // Menggunakan template literal (backtick ` `), kita menggabungkan kelas dasar yang selalu ada,
-  // dengan Ternary Operator yang akan menyuntikkan kelas warna Oranye JIKA parameter isActive bernilai true.
   const menuClass = ({ isActive }) =>
     `flex cursor-pointer items-center rounded-xl p-4 space-x-3 transition-all font-medium
-    ${isActive ? "text-white bg-orange-500 shadow-md shadow-orange-200" : "text-gray-500 hover:text-orange-500 hover:bg-orange-50"}`;
+    ${isActive ? "text-white bg-[#f97316] shadow-md shadow-orange-200" : "text-gray-500 hover:text-orange-500 hover:bg-orange-50"}`;
+
+  // Mengecek apakah kita sedang berada di halaman "/" atau "/sales"
+  const isHomeActive = location.pathname === '/' || location.pathname === '/sales';
 
   return (
-    // KUNCI RAHASIA: 
-    // 1. 'h-[calc(100vh-32px)]' -> Memaksa tinggi Sidebar persis sejajar layar dikurangi margin.
-    // 2. 'sticky top-4' -> Membuat Sidebar nempel dan diam di tempat saat halaman di-scroll ke bawah.
     <div id="sidebar" className="flex flex-col w-64 h-[calc(100vh-32px)] sticky top-4 bg-white m-4 rounded-[32px] shadow-sm p-4">
       
       <div id="sidebar-logo" className="flex items-center gap-3 mb-10 px-4 pt-6">
@@ -47,15 +39,43 @@ export default function Sidebar() {
         <h1 className="text-2xl font-bold text-gray-800 tracking-tight">Capella</h1>
       </div>
 
-      {/* Bagian menu ini punya 'overflow-y-auto', artinya kalau menunya kebanyakan, 
-          yang bisa di-scroll cuma bagian tengah ini aja, jadi tombol Logout di bawah aman! */}
       <div id="sidebar-menu" className="flex-1 overflow-y-auto px-2">
         <ul id="menu-list" className="space-y-2">
-          <li><NavLink to="/" className={menuClass}><FaHome className="text-xl" /> <span>Dashboard</span></NavLink></li>
+          
+          {/* MENU DROPDOWN HOME (Sesuai Gambar) */}
+          <li className={`rounded-xl overflow-hidden transition-all ${isHomeActive || isHomeOpen ? "bg-[#f97316] shadow-md shadow-orange-200 text-white" : ""}`}>
+            <div 
+              onClick={() => setIsHomeOpen(!isHomeOpen)}
+              className={`flex justify-between items-center cursor-pointer p-4 transition-all font-medium ${!(isHomeActive || isHomeOpen) ? "text-gray-500 hover:text-orange-500 hover:bg-orange-50 rounded-xl" : ""}`}
+            >
+              <div className="flex items-center gap-3">
+                <FaHome className="text-xl" />
+                <span>Home</span>
+              </div>
+              {isHomeOpen ? <FaChevronUp className="text-sm" /> : <FaChevronDown className="text-sm" />}
+            </div>
+            
+            {/* Isi Dropdown: Dashboard & Sales */}
+            {isHomeOpen && (
+              <div className="flex flex-col pb-3 border-t border-orange-400/50">
+                <NavLink 
+                  to="/" 
+                  className={({ isActive }) => `pl-[52px] py-2.5 mt-2 pr-4 font-medium block transition-colors ${isActive ? "text-white" : "text-orange-200 hover:text-white"}`}
+                >
+                  Dashboard
+                </NavLink>
+                <NavLink 
+                  to="/sales" 
+                  className={({ isActive }) => `pl-[52px] py-2.5 pr-4 font-medium block transition-colors ${isActive ? "text-white" : "text-orange-200 hover:text-white"}`}
+                >
+                  Sales
+                </NavLink>
+              </div>
+            )}
+          </li>
+
           <li><NavLink to="/bookings" className={menuClass}><FaBed className="text-xl" /> <span>Bookings</span></NavLink></li>
           <li><NavLink to="/guests" className={menuClass}><FaUserFriends className="text-xl" /> <span>Guests</span></NavLink></li>
-          
-          {/* TAMBAHAN BARU: Menu Inventory ditambahkan di sini */}
           <li><NavLink to="/inventory" className={menuClass}><FaBox className="text-xl" /> <span>Inventory</span></NavLink></li>
           
           <li className="mt-8 pt-6 border-t border-gray-100">

@@ -2,14 +2,14 @@ import React, { Suspense } from "react";
 import { Route, Routes } from "react-router-dom";
 import Loading from "./components/Loading";
 
+// Mengimport Halaman-Halaman
 const Dashboard = React.lazy(() => import("./pages/Dashboard"));
+const Sales = React.lazy(() => import("./pages/Sales")); // TAMBAHAN: Halaman Sales Baru
 const Bookings = React.lazy(() => import("./pages/Bookings"));
 const Guests = React.lazy(() => import("./pages/Guests"));
-
-// PASTIKAN DUA BARIS INI ADA (Untuk memanggil file halamannya)
 const Inventory = React.lazy(() => import("./pages/Inventory"));
 const InventoryDetail = React.lazy(() => import("./pages/InventoryDetail"));
-
+const Components = React.lazy(() => import("./pages/Components"));
 const NotFound = React.lazy(() => import("./pages/NotFound"));
 const MainLayout = React.lazy(() => import("./layout/MainLayout"));
 const AuthLayout = React.lazy(() => import("./layout/AuthLayout"));
@@ -25,16 +25,16 @@ function App() {
       <Routes>
         <Route element={<MainLayout />}>
           <Route path="/" element={<Dashboard />} /> 
+          <Route path="/sales" element={<Sales />} /> {/* TAMBAHAN: Rute Sales */}
           <Route path="/bookings" element={<Bookings />} />
           <Route path="/guests" element={<Guests />} />
-          
-          {/* PASTIKAN DUA BARIS INI ADA DI DALAM SINI (Untuk mendaftarkan URL-nya) */}
           <Route path="/inventory" element={<Inventory />} />
           <Route path="/inventory/:id" element={<InventoryDetail />} />
+          <Route path="/components" element={<Components />} />
 
-          <Route path="/error-400" element={<ErrorPage code="400" title="BAD REQUEST" description="Oops! It Seems You Follow Backlink." lottieUrl="https://embed.lottiefiles.com/animation/78973" />} />
-          <Route path="/error-401" element={<ErrorPage code="401" title="UNAUTHORIZED" description="Maaf, kamu tidak punya izin ke ruangan ini." lottieUrl="https://embed.lottiefiles.com/animation/78973" />} />
-          <Route path="/error-403" element={<ErrorPage code="403" title="FORBIDDEN" description="Area khusus staff Elegent Hotel, kamu dilarang masuk." lottieUrl="https://embed.lottiefiles.com/animation/78973" />} />
+          <Route path="/error-400" element={<ErrorPage code="400" title="BAD REQUEST" description="Oops! It Seems You Follow Backlink." />} />
+          <Route path="/error-401" element={<ErrorPage code="401" title="UNAUTHORIZED" description="Maaf, kamu tidak punya izin ke ruangan ini." />} />
+          <Route path="/error-403" element={<ErrorPage code="403" title="FORBIDDEN" description="Area khusus staff Elegent Hotel, kamu dilarang masuk." />} />
           <Route path="*" element={<NotFound />} />
         </Route>
 
