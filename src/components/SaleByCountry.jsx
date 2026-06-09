@@ -9,10 +9,13 @@ export default function SaleByCountry() {
   ];
 
   return (
-    <div className="bg-white rounded-[32px] p-8 shadow-sm border border-gray-100 h-full">
+    <div className="bg-white rounded-[32px] p-6 lg:p-8 shadow-sm border border-gray-100 h-full w-full">
       <h3 className="font-bold text-[20px] text-[#1e293b] mb-8">Sale by country</h3>
-      <div className="overflow-x-auto">
-        <table className="w-full text-left">
+      
+      {/* Tambahan w-full agar kontainer scroll penuh */}
+      <div className="overflow-x-auto w-full">
+        {/* min-w-[600px] mencegah tabel memampat sampai hancur di layar HP/layar di-zoom */}
+        <table className="w-full text-left min-w-[600px]">
           <thead>
             <tr className="text-[#1e293b] border-b border-gray-100">
               <th className="pb-4 font-bold">🌐</th>

@@ -16,6 +16,7 @@ export default function Sales() {
 
         {/* 1. ROW STATISTIK */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 my-6 w-full">
+          {/* Kita asumsikan StatCard akan mengikuti grid, pastikan di dalam StatCard.jsx ada flex-wrap jika teks kepanjangan */}
           <StatCard 
             icon={FaTag} 
             title="Sales" 
@@ -43,21 +44,23 @@ export default function Sales() {
         </div>
 
         {/* 2. ROW CHART & VISITORS */}
+        {/* PERBAIKAN: Tambahkan min-w-0 di setiap lg:col-span agar elemen dalamnya bisa mengecil saat di-zoom */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6 mb-6 w-full">
-          <div className="lg:col-span-2 w-full overflow-hidden">
+          <div className="lg:col-span-2 w-full min-w-0 overflow-hidden">
             <RevenueChart />
           </div>
-          <div className="lg:col-span-1 w-full overflow-hidden">
+          <div className="lg:col-span-1 w-full min-w-0 overflow-hidden">
             <VisitorChart />
           </div>
         </div>
 
         {/* 3. ROW TABLE & CUSTOMERS */}
+        {/* PERBAIKAN: Tambahkan min-w-0 di setiap lg:col-span */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6 w-full">
-          <div className="lg:col-span-2 w-full overflow-hidden">
+          <div className="lg:col-span-2 w-full min-w-0 overflow-hidden">
             <TopSelling />
           </div>
-          <div className="lg:col-span-1 flex flex-col gap-4 md:gap-6 w-full overflow-hidden">
+          <div className="lg:col-span-1 flex flex-col gap-4 md:gap-6 w-full min-w-0 overflow-hidden">
             <NewCustomers />
             <BuyersProfile />
           </div>

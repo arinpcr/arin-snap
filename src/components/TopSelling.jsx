@@ -8,11 +8,14 @@ const products = [
 
 export default function TopSelling() {
   return (
-    <div className="bg-white rounded-[32px] p-8 shadow-sm border border-gray-100 h-full flex flex-col justify-between">
-      <div>
+    <div className="bg-white rounded-[32px] p-6 lg:p-8 shadow-sm border border-gray-100 h-full w-full flex flex-col justify-between">
+      <div className="w-full">
         <h3 className="font-bold text-[22px] text-[#1e293b] mb-8">Top Selling Product</h3>
-        <div className="overflow-x-auto">
-          <table className="w-full text-left">
+        
+        {/* Tambahan w-full pada pembungkus scroll */}
+        <div className="overflow-x-auto w-full">
+           {/* min-w-[700px] memastikan elemen produk tidak gepeng */}
+          <table className="w-full text-left min-w-[700px]">
             <thead>
               <tr className="text-[#1e293b] border-b border-gray-100">
                 <th className="pb-4 font-bold text-[15px]">Product</th>
@@ -27,12 +30,12 @@ export default function TopSelling() {
                 <tr key={i} className="border-b border-gray-50 last:border-0">
                   <td className="py-4">
                     <div className="flex items-center gap-4">
-                      <div className={`w-12 h-12 rounded-full ${p.bg} flex items-center justify-center text-xl`}>
+                      <div className={`w-12 h-12 flex-shrink-0 rounded-full ${p.bg} flex items-center justify-center text-xl`}>
                         {p.icon}
                       </div>
-                      <div>
-                        <p className="font-bold text-[#1e293b] text-[15px]">{p.name}</p>
-                        <p className="text-[#94a3b8] text-sm">{p.sub}</p>
+                      <div className="min-w-[120px]">
+                        <p className="font-bold text-[#1e293b] text-[15px] truncate">{p.name}</p>
+                        <p className="text-[#94a3b8] text-sm truncate">{p.sub}</p>
                       </div>
                     </div>
                   </td>
@@ -47,10 +50,10 @@ export default function TopSelling() {
         </div>
       </div>
 
-      {/* Pagination */}
-      <div className="flex justify-between items-center mt-6 pt-6 text-sm">
-        <span className="text-[#94a3b8] font-medium">Showing 5 of 5 products</span>
-        <div className="flex items-center gap-3">
+      {/* Pagination dibungkus agar tidak pecah */}
+      <div className="flex flex-wrap gap-4 justify-between items-center mt-6 pt-6 text-sm w-full">
+        <span className="text-[#94a3b8] font-medium whitespace-nowrap">Showing 5 of 5 products</span>
+        <div className="flex items-center gap-2 sm:gap-3">
           <button className="text-[#94a3b8] font-medium hover:text-gray-600">Prev</button>
           <button className="w-8 h-8 rounded-full bg-[#f97316] text-white font-bold flex items-center justify-center">1</button>
           <button className="w-8 h-8 rounded-full bg-[#f8fafc] text-[#f97316] font-bold flex items-center justify-center">2</button>

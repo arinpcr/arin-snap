@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"; // Tambah useEffect di sini
+import { useState, useEffect } from "react";
 import PageHeader from "../components/PageHeader";
 
 export default function Bookings() {
