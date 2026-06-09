@@ -1,20 +1,22 @@
-// Mengimpor hook useState dari React untuk mengontrol buka-tutup modal/form.
-import { useState } from "react";
-// Mengimpor komponen PageHeader untuk bagian judul halaman.
+import { useState, useEffect } from "react"; // Tambah useEffect di sini
 import PageHeader from "../components/PageHeader";
 
 export default function Bookings() {
-    // PENJELASAN STATE MODAL:
-    // showForm: State boolean (true/false) untuk menentukan apakah modal pop-up tampil atau tidak.
     const [showForm, setShowForm] = useState(false);
-    
-    // PENJELASAN AUTH CHECK:
-    // Mengecek apakah ada status 'true' pada kunci 'isLoggedIn' di Local Storage.
     const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
-    
-    // PENJELASAN DUMMY DATA GENERATOR:
-    // Array.from: Membuat array tiruan sebanyak 15 data.
-    // Logic: Jika isLoggedIn = true, array diisi data booking. Jika false, array dikosongkan [].
+
+    // --- TUGAS PFL: Implementasi useEffect ---
+    // Efek: Mengubah judul Tab Browser saat halaman Booking dibuka
+    useEffect(() => {
+        document.title = "Capella - 3 Pesanan Pending";
+
+        // Cleanup: Kembalikan judul saat pindah ke halaman lain
+        return () => {
+            document.title = "Capella CRM";
+        };
+    }, []); // Array kosong berarti hanya jalan 1x saat render pertama
+    // ----------------------------------------
+
     const bookingsData = isLoggedIn ? Array.from({ length: 15 }, (_, i) => ({
         id: `#BKG-${1000 + i}`,
         name: ["Aiden Max", "Bella Swan", "Carter Dan", "Diana Prince", "Ethan Hunt"][i % 5],
@@ -25,14 +27,10 @@ export default function Bookings() {
 
     return (
         <div id="dashboard-container" className="p-2 font-poppins">
-            {/* PageHeader menggunakan konsep 'Children Props' untuk memasukkan tombol ke dalamnya */}
             <PageHeader title="Bookings" breadcrumb="Booking Management">
-                
-                {/* CONDITIONAL RENDERING TOMBOL: 
-                    Simbol '&&' berarti: Tampilkan Button HANYA jika isLoggedIn bernilai true */}
                 {isLoggedIn && (
                     <button 
-                        onClick={() => setShowForm(true)} // Mengubah state menjadi true untuk membuka modal
+                        onClick={() => setShowForm(true)} 
                         className="bg-orange-500 text-white px-8 py-3 rounded-2xl font-bold hover:bg-orange-600 transition-all shadow-[0_10px_20px_rgba(249,115,22,0.3)]"
                     >
                         + New Booking
@@ -40,7 +38,6 @@ export default function Bookings() {
                 )}
             </PageHeader>
 
-            {/* TABEL DATA BOOKING */}
             <div className="mt-8 bg-white rounded-[32px] shadow-sm border border-gray-100 overflow-hidden">
                 <table className="w-full text-left">
                     <thead>
@@ -53,10 +50,6 @@ export default function Bookings() {
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-50">
-                        
-                        {/* CONDITIONAL RENDERING ISI TABEL:
-                            Jika Belum Login -> Tampilkan baris "Please login..."
-                            Jika Sudah Login -> Lakukan looping (.map) pada bookingsData */}
                         {!isLoggedIn ? (
                             <tr>
                                 <td colSpan="5" className="text-center py-10 text-gray-400 font-semibold">
@@ -69,12 +62,10 @@ export default function Bookings() {
                                     <td className="p-6 font-bold text-gray-800">{booking.id}</td>
                                     <td className="p-6 font-extrabold text-gray-700">{booking.name}</td>
                                     <td className="p-6 text-center">
-                                        {/* BADGE STATUS DINAMIS: Warna background berubah sesuai nilai booking.status */}
                                         <div className={`mx-auto w-fit px-5 py-1.5 rounded-full text-[10px] font-black uppercase flex items-center gap-2 ${
                                             booking.status === 'Completed' ? 'bg-emerald-100 text-emerald-600' : 
                                             booking.status === 'Pending' ? 'bg-amber-100 text-amber-600' : 'bg-rose-100 text-rose-600'
                                         }`}>
-                                            {/* Dot kecil di samping tulisan status */}
                                             <div className={`w-1.5 h-1.5 rounded-full ${
                                                 booking.status === 'Completed' ? 'bg-emerald-600' : 
                                                 booking.status === 'Pending' ? 'bg-amber-600' : 'bg-rose-600'
@@ -91,10 +82,8 @@ export default function Bookings() {
                 </table>
             </div>
 
-            {/* MODAL POPUP: Hanya muncul jika state showForm bernilai TRUE */}
             {showForm && (
                 <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
-                    {/* Kotak Modal dengan Animasi zoom-in */}
                     <div className="bg-white w-full max-w-md rounded-[32px] p-10 shadow-2xl animate-in zoom-in duration-200">
                         <h2 className="text-2xl font-bold mb-6 text-gray-800 text-left">Create New Booking</h2>
                         <div className="space-y-4 text-left">
@@ -106,9 +95,7 @@ export default function Bookings() {
                             <input type="number" className="w-full p-4 bg-gray-50 border border-gray-100 rounded-2xl outline-none focus:ring-2 focus:ring-orange-500" placeholder="Total Price ($)" />
                         </div>
                         <div className="flex gap-4 mt-8">
-                            {/* Tombol Discard/Batal: Mengubah state showForm kembali ke false untuk menutup modal */}
                             <button onClick={() => setShowForm(false)} className="flex-1 font-bold text-gray-400 hover:bg-gray-50 rounded-2xl">Discard</button>
-                            {/* Tombol Submit: Sama-sama menutup modal dalam simulasi ini */}
                             <button onClick={() => setShowForm(false)} className="flex-1 py-4 bg-orange-500 text-white rounded-2xl font-bold shadow-lg shadow-orange-200 hover:bg-orange-600">Submit Booking</button>
                         </div>
                     </div>
