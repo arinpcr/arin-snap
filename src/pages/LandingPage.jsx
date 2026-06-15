@@ -1,14 +1,37 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { FaStar, FaChevronDown, FaChevronUp, FaEnvelope, FaShoppingCart } from "react-icons/fa";
+import { FaStar, FaChevronDown, FaChevronUp, FaEnvelope, FaShoppingCart, FaQuoteLeft } from "react-icons/fa";
 
 export default function LandingPage() {
-    // TUGAS PFL: State untuk interaktivitas FAQ Accordion
     const [openFaq, setOpenFaq] = useState(null);
 
     const toggleFaq = (index) => {
         setOpenFaq(openFaq === index ? null : index);
     };
+
+    const testimonials = [
+        {
+            name: "Amelia Richardson",
+            origin: "London, UK",
+            tier: "Platinum Member",
+            rating: 5,
+            comment: "Dari momen pertama check-in hingga checkout, setiap detail diperhatikan. Tim Capella bahkan mengingat preferensi bantal saya dari kunjungan sebelumnya — benar-benar personalisasi yang luar biasa.",
+        },
+        {
+            name: "Hiroshi Tanaka",
+            origin: "Tokyo, Japan",
+            tier: "Gold Member",
+            rating: 5,
+            comment: "Pengalaman menginap di Capella adalah definisi kemewahan sejati. Fasilitas Boutique add-on yang saya pesan sudah tersedia rapi di kamar sebelum saya tiba. Tidak ada hotel lain yang mampu menandingi standar ini.",
+        },
+        {
+            name: "Sofia Andersen",
+            origin: "Copenhagen, Denmark",
+            tier: "Silver Member",
+            rating: 5,
+            comment: "Capella Circle membership benar-benar memberikan nilai yang sepadan. Complimentary upgrade kamar dan layanan concierge 24 jam membuat liburan keluarga kami menjadi momen tak terlupakan.",
+        },
+    ];
 
     return (
         <div className="min-h-screen bg-white text-gray-900 font-sans scroll-smooth">
@@ -17,7 +40,6 @@ export default function LandingPage() {
             <nav className="fixed w-full z-50 bg-white/90 backdrop-blur-md border-b border-gray-100 py-4 px-6 md:px-12 flex justify-between items-center transition-all duration-300 hover:bg-white">
                 <div className="hidden md:flex gap-10 text-[11px] font-bold tracking-[0.2em] text-gray-500 uppercase">
                     <a href="#offers" className="hover:text-orange-500 transition-colors">Exclusive Offers</a>
-                    {/* LINK BARU KE BOUTIQUE */}
                     <a href="#boutique" className="hover:text-orange-500 transition-colors">Boutique</a>
                     <a href="#loyalty" className="hover:text-orange-500 transition-colors">Capella Circle</a>
                 </div>
@@ -54,7 +76,6 @@ export default function LandingPage() {
                     <p className="text-lg md:text-2xl font-serif tracking-wide mt-12 md:mt-24 drop-shadow-md">Discover Your Bespoke Journey</p>
                 </div>
 
-                {/* CRM FEATURE: Booking Engine with Promo Code Integration */}
                 <div id="book" className="absolute bottom-10 md:bottom-20 w-full max-w-[1000px] px-6 z-30">
                     <div className="bg-white p-4 md:p-6 flex flex-col md:flex-row gap-4 items-end shadow-2xl border-t-4 border-orange-500">
                         <div className="flex-1 w-full border-b md:border-b-0 md:border-r border-gray-200 pb-4 md:pb-0 md:pr-4">
@@ -87,7 +108,6 @@ export default function LandingPage() {
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12">
-                        {/* Offer 1 */}
                         <div className="group cursor-pointer bg-white border border-gray-100 p-6 hover:shadow-xl transition-all">
                             <div className="overflow-hidden mb-6 relative">
                                 <img src="https://images.unsplash.com/photo-1571896349842-33c89424de2d?q=80&w=800&auto=format&fit=crop" className="w-full h-[250px] object-cover group-hover:scale-105 transition-transform duration-1000" alt="Spa Offer" />
@@ -98,7 +118,6 @@ export default function LandingPage() {
                             <span className="text-[10px] text-orange-500 font-bold uppercase tracking-[0.2em] group-hover:text-gray-900 transition-colors border-b border-orange-500 pb-1">Discover More</span>
                         </div>
 
-                        {/* Offer 2 */}
                         <div className="group cursor-pointer bg-white border border-gray-100 p-6 hover:shadow-xl transition-all">
                             <div className="overflow-hidden mb-6 relative">
                                 <img src="https://images.unsplash.com/photo-1550966871-3ed3cdb5ed0c?q=80&w=800&auto=format&fit=crop" className="w-full h-[250px] object-cover group-hover:scale-105 transition-transform duration-1000" alt="Dining Offer" />
@@ -108,7 +127,6 @@ export default function LandingPage() {
                             <span className="text-[10px] text-orange-500 font-bold uppercase tracking-[0.2em] group-hover:text-gray-900 transition-colors border-b border-orange-500 pb-1">Discover More</span>
                         </div>
 
-                        {/* Offer 3 */}
                         <div className="group cursor-pointer bg-white border border-gray-100 p-6 hover:shadow-xl transition-all">
                             <div className="overflow-hidden mb-6 relative">
                                 <img src="https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?q=80&w=800&auto=format&fit=crop" className="w-full h-[250px] object-cover group-hover:scale-105 transition-transform duration-1000" alt="Wellness Offer" />
@@ -121,7 +139,7 @@ export default function LandingPage() {
                 </div>
             </section>
 
-            {/* --- 4. NEW FEATURE: CAPELLA BOUTIQUE (TERINTEGRASI DENGAN ADMIN INVENTORY) --- */}
+            {/* --- 4. CAPELLA BOUTIQUE --- */}
             <section id="boutique" className="py-24 px-6 md:px-16 bg-white border-t border-gray-100">
                 <div className="max-w-[1400px] mx-auto">
                     <div className="text-center mb-16">
@@ -131,7 +149,6 @@ export default function LandingPage() {
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                        {/* INVENTORY ITEM 1 */}
                         <div className="group flex flex-col bg-gray-50/50 border border-gray-100 p-8 hover:shadow-xl transition-all hover:border-orange-200">
                             <div className="flex-1">
                                 <div className="flex justify-between items-start mb-6">
@@ -141,14 +158,13 @@ export default function LandingPage() {
                                     </div>
                                     <span className="text-2xl font-serif text-gray-900">$45</span>
                                 </div>
-                                <p className="text-xs text-gray-500 leading-relaxed font-light mb-8">Hadirkan ketenangan di kamar Anda dengan pilihan wewangian khas Capella. Alat ini akan diatur di kamar Anda beserta set *essential oil* eksklusif.</p>
+                                <p className="text-xs text-gray-500 leading-relaxed font-light mb-8">Hadirkan ketenangan di kamar Anda dengan pilihan wewangian khas Capella. Alat ini akan diatur di kamar Anda beserta set essential oil eksklusif.</p>
                             </div>
                             <button onClick={() => alert("Item berhasil ditambahkan ke keranjang reservasi Anda!")} className="w-full flex items-center justify-center gap-3 bg-white hover:bg-orange-500 text-gray-900 hover:text-white border border-gray-200 hover:border-orange-500 py-4 text-[10px] font-bold tracking-[0.2em] uppercase transition-all">
                                 <FaShoppingCart className="text-sm" /> Add to Stay
                             </button>
                         </div>
 
-                        {/* INVENTORY ITEM 2 */}
                         <div className="group flex flex-col bg-gray-50/50 border border-gray-100 p-8 hover:shadow-xl transition-all hover:border-orange-200">
                             <div className="flex-1">
                                 <div className="flex justify-between items-start mb-6">
@@ -165,7 +181,6 @@ export default function LandingPage() {
                             </button>
                         </div>
 
-                        {/* INVENTORY ITEM 3 */}
                         <div className="group flex flex-col bg-gray-50/50 border border-gray-100 p-8 hover:shadow-xl transition-all hover:border-orange-200">
                             <div className="flex-1">
                                 <div className="flex justify-between items-start mb-6">
@@ -185,7 +200,7 @@ export default function LandingPage() {
                 </div>
             </section>
 
-            {/* --- 5. CRM FEATURE: LOYALTY PROGRAM (CAPELLA CIRCLE) --- */}
+            {/* --- 5. LOYALTY PROGRAM --- */}
             <section id="loyalty" className="py-24 md:py-32 px-6 md:px-16 max-w-[1400px] mx-auto bg-white border-t border-gray-100">
                 <div className="flex flex-col md:flex-row gap-16 items-center">
                     <div className="w-full md:w-1/2 md:pr-12 text-center md:text-left">
@@ -222,7 +237,7 @@ export default function LandingPage() {
                 </div>
             </section>
 
-            {/* --- 6. PFL & CRM FEATURE: INTERACTIVE FAQ --- */}
+            {/* --- 6. FAQ --- */}
             <section className="py-24 px-6 md:px-16 bg-gray-50/30 border-t border-gray-100">
                 <div className="max-w-[800px] mx-auto">
                     <div className="text-center mb-16">
@@ -231,7 +246,6 @@ export default function LandingPage() {
                     </div>
 
                     <div className="space-y-4">
-                        {/* FAQ 1 */}
                         <div className="border border-gray-200 bg-white p-6 cursor-pointer" onClick={() => toggleFaq(1)}>
                             <div className="flex justify-between items-center">
                                 <h4 className="font-serif text-gray-800 text-lg">Bagaimana cara menukarkan poin Capella Circle saya?</h4>
@@ -239,12 +253,11 @@ export default function LandingPage() {
                             </div>
                             {openFaq === 1 && (
                                 <p className="mt-4 text-sm text-gray-500 font-light leading-relaxed border-t border-gray-100 pt-4 animate-in slide-in-from-top-2">
-                                    Poin CRM Anda dapat ditukarkan saat proses *checkout* di resepsionis, atau saat melakukan reservasi *online* melalui Dashboard Member dengan memilih opsi "Pay with Points".
+                                    Poin CRM Anda dapat ditukarkan saat proses checkout di resepsionis, atau saat melakukan reservasi online melalui Dashboard Member dengan memilih opsi "Pay with Points".
                                 </p>
                             )}
                         </div>
 
-                        {/* FAQ 2 */}
                         <div className="border border-gray-200 bg-white p-6 cursor-pointer" onClick={() => toggleFaq(2)}>
                             <div className="flex justify-between items-center">
                                 <h4 className="font-serif text-gray-800 text-lg">Apakah saya bisa meminta preferensi kamar khusus (cth: bantal alergi)?</h4>
@@ -252,12 +265,11 @@ export default function LandingPage() {
                             </div>
                             {openFaq === 2 && (
                                 <p className="mt-4 text-sm text-gray-500 font-light leading-relaxed border-t border-gray-100 pt-4 animate-in slide-in-from-top-2">
-                                    Tentu. Sistem CRM kami menyimpan rekam jejak (*guest profile*) Anda. Anda cukup memasukkan *request* tersebut pada kolom 'Special Requests' saat *booking*, dan sistem kami akan mengingatnya untuk kunjungan Anda berikutnya.
+                                    Tentu. Sistem CRM kami menyimpan rekam jejak (guest profile) Anda. Anda cukup memasukkan request tersebut pada kolom 'Special Requests' saat booking, dan sistem kami akan mengingatnya untuk kunjungan Anda berikutnya.
                                 </p>
                             )}
                         </div>
 
-                        {/* FAQ 3 */}
                         <div className="border border-gray-200 bg-white p-6 cursor-pointer" onClick={() => toggleFaq(3)}>
                             <div className="flex justify-between items-center">
                                 <h4 className="font-serif text-gray-800 text-lg">Apa kebijakan pembatalan reservasi hotel ini?</h4>
@@ -265,7 +277,7 @@ export default function LandingPage() {
                             </div>
                             {openFaq === 3 && (
                                 <p className="mt-4 text-sm text-gray-500 font-light leading-relaxed border-t border-gray-100 pt-4 animate-in slide-in-from-top-2">
-                                    Pembatalan gratis dapat dilakukan maksimal 48 jam sebelum tanggal *check-in* untuk tipe harga Flexible. Untuk harga Promo Member, silakan merujuk pada syarat dan ketentuan spesifik penawaran.
+                                    Pembatalan gratis dapat dilakukan maksimal 48 jam sebelum tanggal check-in untuk tipe harga Flexible. Untuk harga Promo Member, silakan merujuk pada syarat dan ketentuan spesifik penawaran.
                                 </p>
                             )}
                         </div>
@@ -273,7 +285,50 @@ export default function LandingPage() {
                 </div>
             </section>
 
-            {/* --- 7. CRM FEATURE: LEAD CAPTURE (NEWSLETTER) & FOOTER --- */}
+            {/* --- 7. GUEST TESTIMONIALS --- */}
+            <section className="py-24 px-6 md:px-16 bg-white border-t border-gray-100">
+                <div className="max-w-[1400px] mx-auto">
+                    <div className="text-center mb-16">
+                        <span className="text-[10px] text-orange-500 font-bold uppercase tracking-[0.2em] block mb-4">Guest Voices</span>
+                        <h2 className="text-3xl md:text-4xl font-serif text-gray-800 tracking-widest uppercase mb-4">What Our Guests Say</h2>
+                        <p className="text-sm text-gray-500 font-light tracking-wide">Cerita nyata dari tamu setia Capella di seluruh dunia.</p>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        {testimonials.map((t, index) => (
+                            <div key={index} className="flex flex-col bg-gray-50/50 border border-gray-100 p-8 hover:shadow-xl transition-all hover:border-orange-100">
+                                {/* Quote Icon */}
+                                <FaQuoteLeft className="text-orange-200 text-3xl mb-6" />
+
+                                {/* Stars */}
+                                <div className="flex gap-1 mb-5">
+                                    {[...Array(t.rating)].map((_, i) => (
+                                        <FaStar key={i} className="text-orange-400 text-xs" />
+                                    ))}
+                                </div>
+
+                                {/* Comment */}
+                                <p className="text-sm text-gray-500 font-light leading-relaxed flex-1 mb-8 font-serif italic">
+                                    "{t.comment}"
+                                </p>
+
+                                {/* Divider */}
+                                <div className="border-t border-gray-200 pt-6 flex items-center justify-between">
+                                    <div>
+                                        <p className="font-serif text-gray-900 text-base">{t.name}</p>
+                                        <p className="text-[10px] text-gray-400 tracking-[0.15em] uppercase mt-1">{t.origin}</p>
+                                    </div>
+                                    <span className="text-[9px] text-orange-500 font-bold tracking-[0.15em] uppercase bg-orange-50 px-3 py-1 rounded-sm">
+                                        {t.tier}
+                                    </span>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </section>
+
+            {/* --- 8. FOOTER --- */}
             <footer className="bg-white border-t border-gray-200 pt-20 pb-10 px-6 md:px-16 text-center md:text-left">
                 <div className="max-w-[1400px] mx-auto flex flex-col md:flex-row justify-between items-start gap-16 mb-16">
                     
