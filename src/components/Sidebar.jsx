@@ -7,7 +7,6 @@ export default function Sidebar() {
   const location = useLocation();
   
   // STATE UNTUK DROPDOWN HOME
-  // Default true agar langsung terbuka (bisa diset false jika ingin tertutup di awal)
   const [isHomeOpen, setIsHomeOpen] = useState(true);
 
   const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
@@ -15,6 +14,7 @@ export default function Sidebar() {
   const handleAuthAction = () => {
       if (isLoggedIn) {
           localStorage.removeItem("isLoggedIn");
+          localStorage.removeItem("userRole"); // Tambahan: Hapus role saat logout biar aman!
           window.location.href = "/"; 
       } else {
           navigate("/login"); 
@@ -25,8 +25,8 @@ export default function Sidebar() {
     `flex cursor-pointer items-center rounded-xl p-4 space-x-3 transition-all font-medium
     ${isActive ? "text-white bg-[#f97316] shadow-md shadow-orange-200" : "text-gray-500 hover:text-orange-500 hover:bg-orange-50"}`;
 
-  // Mengecek apakah kita sedang berada di halaman "/" atau "/sales"
-  const isHomeActive = location.pathname === '/' || location.pathname === '/sales';
+  // PERBAIKAN 1: Ubah pengecekan warna aktif dari '/' menjadi '/dashboard'
+  const isHomeActive = location.pathname === '/dashboard' || location.pathname === '/sales';
 
   return (
     <div id="sidebar" className="flex flex-col w-64 h-[calc(100vh-32px)] sticky top-4 bg-white m-4 rounded-[32px] shadow-sm p-4">
@@ -42,7 +42,7 @@ export default function Sidebar() {
       <div id="sidebar-menu" className="flex-1 overflow-y-auto px-2">
         <ul id="menu-list" className="space-y-2">
           
-          {/* MENU DROPDOWN HOME (Sesuai Gambar) */}
+          {/* MENU DROPDOWN HOME */}
           <li className={`rounded-xl overflow-hidden transition-all ${isHomeActive || isHomeOpen ? "bg-[#f97316] shadow-md shadow-orange-200 text-white" : ""}`}>
             <div 
               onClick={() => setIsHomeOpen(!isHomeOpen)}
@@ -58,8 +58,9 @@ export default function Sidebar() {
             {/* Isi Dropdown: Dashboard & Sales */}
             {isHomeOpen && (
               <div className="flex flex-col pb-3 border-t border-orange-400/50">
+                {/* PERBAIKAN 2: Ubah link tujuan ke '/dashboard' */}
                 <NavLink 
-                  to="/" 
+                  to="/dashboard" 
                   className={({ isActive }) => `pl-[52px] py-2.5 mt-2 pr-4 font-medium block transition-colors ${isActive ? "text-white" : "text-orange-200 hover:text-white"}`}
                 >
                   Dashboard
