@@ -143,11 +143,13 @@ export default function Login() {
                         </button>
                     </form>
 
-                    {role === "member" && (
-                        <p className="text-center text-xs text-gray-400 font-medium mt-8">
-                            Don't have an account? <Link to="/register" className="text-orange-400 font-bold hover:underline">Sign up</Link>
-                        </p>
-                    )}
+                    <p className="text-center text-xs text-gray-400 font-medium mt-8">
+                        {role === "member" ? (
+                            <>Don't have an account? <Link to="/register" className="text-orange-400 font-bold hover:underline">Sign up</Link></>
+                        ) : (
+                            <>Need access? <Link to="/register" className="text-orange-400 font-bold hover:underline">Register as Staff</Link></>
+                        )}
+                    </p>
                 </div>
             </div>
 

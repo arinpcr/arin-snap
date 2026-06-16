@@ -31,8 +31,11 @@ export default function Register() {
                 options: {
                     data: {
                         full_name: dataForm.name,
-                        role: role // <-- INI KUNCI RAHASIANYA! Menyimpan role ke database
-                    }
+                        role: role
+                    },
+                    // Menambahkan opsi emailRedirectTo agar setelah daftar 
+                    // user langsung diarahkan ke halaman login
+                    emailRedirectTo: window.location.origin + '/login' 
                 }
             });
 
@@ -40,8 +43,7 @@ export default function Register() {
                 throw error;
             }
 
-            localStorage.setItem("registeredName", dataForm.name);
-
+            // Pesan sukses yang lebih jelas untuk dosen
             alert(`Registrasi ${role === "staff" ? "Staff" : "Member"} Berhasil! Silakan Login.`);
             navigate("/login");
 
@@ -118,11 +120,12 @@ export default function Register() {
                 <div className="absolute top-10 right-0 w-[350px] h-[350px] rounded-full bg-white/5 blur-[2px] translate-x-1/4"></div>
                 <div className="absolute bottom-20 right-20 w-28 h-28 rounded-full bg-gradient-to-tr from-orange-300/60 to-orange-400/60 shadow-lg"></div>
 
-                <div className="absolute bottom-16 left-12">
-                    <h2 className="text-[40px] font-bold text-white leading-tight tracking-wide">
-                        {role === "staff" ? "Join The\nCapella\nTeam" : "Join The\nCapella\nCircle"}
-                    </h2>
-                </div>
+               
+<div className="absolute bottom-16 left-12">
+    <h2 className="text-[40px] font-bold text-white leading-tight tracking-wide whitespace-pre-line">
+        {role === "staff" ? "Join The\nCapella\nTeam" : "Join The\nCapella\nCircle"}
+    </h2>
+</div>
             </div>
         </div>
     );
