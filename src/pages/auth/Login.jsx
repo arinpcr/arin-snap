@@ -81,7 +81,7 @@ export default function Login() {
             if (dbRole === "staff") {
                 navigate("/dashboard");
             } else {
-                navigate("/");
+                navigate("/member-portal"); // <-- INI YANG DIUBAH AGAR KE HALAMAN MEMBER
             }
 
         } catch (err) {

@@ -33,7 +33,7 @@ export default function Register() {
                         full_name: dataForm.name,
                         role: role
                     },
-                    // Menambahkan opsi emailRedirectTo agar setelah daftar 
+                    // Menambahkan opsi emailRedirectTo
                     // user langsung diarahkan ke halaman login
                     emailRedirectTo: window.location.origin + '/login' 
                 }
@@ -43,7 +43,6 @@ export default function Register() {
                 throw error;
             }
 
-            // Pesan sukses yang lebih jelas untuk dosen
             alert(`Registrasi ${role === "staff" ? "Staff" : "Member"} Berhasil! Silakan Login.`);
             navigate("/login");
 
