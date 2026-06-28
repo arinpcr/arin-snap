@@ -128,7 +128,7 @@ export default function LandingPage() {
                 </div>
 
                 <div className="flex items-center gap-6 ml-auto">
-                    {isLoggedIn ? (
+                    {isLoggedIn && userRole !== "staff" ? (
                         <>
                             <button onClick={handleLogout} className="text-[11px] font-bold tracking-[0.2em] text-gray-400 hover:text-orange-500 transition-colors hidden md:block uppercase cursor-pointer">
                                 Logout
@@ -164,7 +164,7 @@ export default function LandingPage() {
                     <h1 className="text-4xl md:text-6xl font-serif tracking-[0.2em] uppercase mb-4 drop-shadow-md">Capella</h1>
                     <p className="text-[10px] md:text-xs font-bold tracking-[0.3em] uppercase mb-16 drop-shadow-md">Hotels and Resorts</p>
                     
-                    {isLoggedIn ? (
+                    {isLoggedIn && userRole !== "staff" ? (
                         <div className="mt-2 mb-8 bg-black/50 backdrop-blur-md border border-orange-500/60 px-8 py-4 rounded-full inline-flex flex-col md:flex-row items-center gap-4 shadow-xl">
                             <span className="text-xs md:text-sm font-serif tracking-widest text-orange-300">
                                 Welcome back, <strong className="text-white uppercase tracking-[0.1em]">{localStorage.getItem("registeredName") || "Capella Member"}</strong>!

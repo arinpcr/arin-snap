@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { FaHome, FaBed, FaUserFriends, FaSignOutAlt, FaSignInAlt, FaBan, FaBox, FaChevronDown, FaChevronUp } from "react-icons/fa";
 import { NavLink, useNavigate, useLocation } from "react-router-dom";
+import { supabase } from "../lib/supabase";
 
 export default function Sidebar() {
   const navigate = useNavigate();
@@ -8,17 +9,22 @@ export default function Sidebar() {
   
   // STATE UNTUK DROPDOWN HOME
   const [isHomeOpen, setIsHomeOpen] = useState(true);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
 
   const handleAuthAction = () => {
       if (isLoggedIn) {
-          localStorage.removeItem("isLoggedIn");
-          localStorage.removeItem("userRole"); // Tambahan: Hapus role saat logout biar aman!
-          window.location.href = "/"; 
+          setShowLogoutModal(true);
       } else {
           navigate("/login"); 
       }
+  };
+
+  const executeLogout = async () => {
+      await supabase.auth.signOut();
+      localStorage.clear();
+      window.location.href = "/";
   };
 
   const menuClass = ({ isActive }) =>
@@ -89,7 +95,7 @@ export default function Sidebar() {
       </div>
 
       <div id="sidebar-footer" className="mt-auto px-2 pb-4">
-          <button onClick={handleAuthAction} className="flex items-center gap-3 text-[#FF8E29] font-bold hover:text-orange-700 p-4 w-full rounded-xl hover:bg-orange-50 transition-all">
+          <button onClick={handleAuthAction} className="flex items-center gap-3 text-[#FF8E29] font-bold hover:text-orange-700 p-4 w-full rounded-xl hover:bg-orange-50 transition-all cursor-pointer">
               {isLoggedIn ? (
                   <><FaSignOutAlt className="text-xl" /><span>Logout</span></>
               ) : (
@@ -97,6 +103,35 @@ export default function Sidebar() {
               )}
           </button>
       </div>
+
+      {/* --- LOGOUT CONFIRMATION POPUP --- */}
+      {showLogoutModal && (
+        <div className="fixed inset-0 bg-black/50 z-[100] flex items-center justify-center p-4 backdrop-blur-sm">
+          <div className="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl text-center border border-gray-100 animate-in zoom-in-95 duration-200">
+            <div className="w-16 h-16 bg-orange-100 text-orange-500 rounded-full flex items-center justify-center mx-auto mb-6 text-2xl shadow-inner">
+              <FaSignOutAlt />
+            </div>
+            <h3 className="text-2xl font-bold text-gray-900 mb-2">Konfirmasi Logout</h3>
+            <p className="text-gray-500 text-sm mb-8 leading-relaxed">
+              Apakah Anda yakin ingin keluar dari Admin Portal Capella?
+            </p>
+            <div className="flex gap-4">
+              <button
+                onClick={() => setShowLogoutModal(false)}
+                className="flex-1 py-3.5 px-6 rounded-2xl border border-gray-200 text-gray-700 font-bold hover:bg-gray-50 transition-all cursor-pointer"
+              >
+                Batal
+              </button>
+              <button
+                onClick={executeLogout}
+                className="flex-1 py-3.5 px-6 rounded-2xl bg-orange-500 text-white font-bold hover:bg-orange-600 transition-all shadow-lg shadow-orange-200 cursor-pointer"
+              >
+                Ya, Logout
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
