@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { createPortal } from "react-dom";
 import { FaHome, FaBed, FaUserFriends, FaSignOutAlt, FaSignInAlt, FaBan, FaBox, FaChevronDown, FaChevronUp, FaCommentDots } from "react-icons/fa";
 import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "../lib/supabase";
@@ -106,8 +107,8 @@ export default function Sidebar() {
       </div>
 
       {/* --- LOGOUT CONFIRMATION POPUP --- */}
-      {showLogoutModal && (
-        <div className="fixed inset-0 bg-black/50 z-[100] flex items-center justify-center p-4 backdrop-blur-sm">
+      {showLogoutModal && createPortal(
+        <div className="fixed inset-0 bg-black/60 z-[99999] flex items-center justify-center p-4 backdrop-blur-md animate-in fade-in duration-200">
           <div className="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl text-center border border-gray-100 animate-in zoom-in-95 duration-200">
             <div className="w-16 h-16 bg-orange-100 text-orange-500 rounded-full flex items-center justify-center mx-auto mb-6 text-2xl shadow-inner">
               <FaSignOutAlt />
@@ -131,7 +132,8 @@ export default function Sidebar() {
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );

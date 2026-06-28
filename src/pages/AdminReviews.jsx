@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import PageHeader from "../components/PageHeader";
 import { supabase } from "../lib/supabase";
 import { FaTrash, FaStar, FaCommentDots, FaPlus, FaSearch } from "react-icons/fa";
@@ -194,8 +195,8 @@ export default function AdminReviews() {
                 </div>
 
                 {/* MODAL ADD TESTIMONIAL */}
-                {showAddModal && (
-                    <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
+                {showAddModal && createPortal(
+                    <div className="fixed inset-0 bg-black/60 z-[99999] flex items-center justify-center p-4 backdrop-blur-md animate-in fade-in duration-200">
                         <div className="bg-white w-full max-w-md rounded-[32px] p-8 shadow-2xl animate-in zoom-in duration-200">
                             <h3 className="text-2xl font-bold text-gray-800 mb-6">Add Testimonial</h3>
                             <form onSubmit={handleAddSubmit} className="space-y-4">
@@ -260,7 +261,8 @@ export default function AdminReviews() {
                                 </div>
                             </form>
                         </div>
-                    </div>
+                    </div>,
+                    document.body
                 )}
             </div>
         </div>
