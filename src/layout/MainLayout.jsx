@@ -1,9 +1,19 @@
-import { Outlet, useLocation } from "react-router-dom"; // Tambahkan useLocation
+import { useEffect } from "react";
+import { Outlet, useLocation, useNavigate } from "react-router-dom"; // Tambahkan useLocation
 import Header from "../components/Header";
 import Sidebar from "../components/Sidebar";
 
 export default function MainLayout() {
     const location = useLocation(); // Mendapatkan URL saat ini
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
+        const userRole = localStorage.getItem("userRole");
+        if (!isLoggedIn || userRole !== "staff") {
+            navigate("/login");
+        }
+    }, [navigate]);
 
     // LOGIKA BACKGROUND DINAMIS:
     // Jika URL adalah "/sales", pakai warna oranye gelap (#FFC794)

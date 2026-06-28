@@ -153,7 +153,7 @@ export default function MemberPortal() {
     const executeLogout = async () => {
         await supabase.auth.signOut();
         localStorage.clear();
-        navigate("/");
+        window.location.href = "/";
     };
 
     // Fungsi untuk memunculkan notifikasi interaktif

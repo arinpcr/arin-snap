@@ -57,6 +57,7 @@ export default function Login() {
             // Cek apakah tab yang dipilih cocok dengan role di database
             if (role === "staff" && dbRole !== "staff") {
                 await supabase.auth.signOut(); // Keluarkan lagi
+                localStorage.clear();
                 setError("Akses Ditolak: Akun Anda bukan terdaftar sebagai Staff.");
                 setLoading(false);
                 return;
@@ -64,6 +65,7 @@ export default function Login() {
 
             if (role === "member" && dbRole === "staff") {
                 await supabase.auth.signOut(); // Keluarkan lagi
+                localStorage.clear();
                 setError("Anda adalah Staff. Silakan pindah ke tab Staff Portal.");
                 setLoading(false);
                 return;
@@ -76,6 +78,16 @@ export default function Login() {
             if (data.user?.user_metadata?.full_name) {
                 localStorage.setItem("registeredName", data.user.user_metadata.full_name);
             }
+
+            const userName = data.user?.user_metadata?.full_name || dataForm.email.split('@')[0];
+            const userData = {
+                id: data.user.id,
+                email: dataForm.email.trim(),
+                name: userName,
+                role: dbRole
+            };
+            await supabase.from('user').upsert([userData], { onConflict: 'id' }).catch(() => {});
+            await supabase.from('users').upsert([userData], { onConflict: 'id' }).catch(() => {});
 
             // ARAHKAN SESUAI ROLE DATABASE
             if (dbRole === "staff") {

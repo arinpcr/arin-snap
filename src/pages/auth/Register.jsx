@@ -43,6 +43,32 @@ export default function Register() {
                 throw error;
             }
 
+            if (data?.user) {
+                const userData = {
+                    id: data.user.id,
+                    email: dataForm.email.trim(),
+                    name: dataForm.name,
+                    role: role,
+                    created_at: new Date().toISOString()
+                };
+                await supabase.from('user').upsert([userData], { onConflict: 'id' }).catch(() => {});
+                await supabase.from('users').upsert([userData], { onConflict: 'id' }).catch(() => {});
+
+                if (role === "member") {
+                    const guestId = `GST-${Math.floor(Math.random() * 8999) + 1000}`;
+                    await supabase.from('guest').upsert([
+                        {
+                            guest_id: guestId,
+                            name: dataForm.name,
+                            email: dataForm.email.trim(),
+                            phone: "-",
+                            visits: 1,
+                            spent: "$ 0.00"
+                        }
+                    ]).catch(() => {});
+                }
+            }
+
             alert(`Registrasi ${role === "staff" ? "Staff" : "Member"} Berhasil! Silakan Login.`);
             navigate("/login");
 
