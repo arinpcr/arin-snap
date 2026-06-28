@@ -163,7 +163,18 @@ export default function LandingPage() {
                     <h1 className="text-4xl md:text-6xl font-serif tracking-[0.2em] uppercase mb-4 drop-shadow-md">Capella</h1>
                     <p className="text-[10px] md:text-xs font-bold tracking-[0.3em] uppercase mb-16 drop-shadow-md">Hotels and Resorts</p>
                     
-                    <p className="text-lg md:text-2xl font-serif tracking-wide mt-12 md:mt-24 drop-shadow-md">Discover Your Bespoke Journey</p>
+                    {isLoggedIn ? (
+                        <div className="mt-2 mb-8 bg-black/50 backdrop-blur-md border border-orange-500/60 px-8 py-4 rounded-full inline-flex flex-col md:flex-row items-center gap-4 shadow-xl">
+                            <span className="text-xs md:text-sm font-serif tracking-widest text-orange-300">
+                                Welcome back, <strong className="text-white uppercase tracking-[0.1em]">{localStorage.getItem("registeredName") || "Capella Member"}</strong>!
+                            </span>
+                            <Link to={userRole === "staff" ? "/dashboard" : "/member-portal"} className="bg-orange-500 hover:bg-orange-600 text-white text-[10px] font-bold tracking-[0.2em] uppercase px-5 py-2 rounded-full transition-all">
+                                Open Portal →
+                            </Link>
+                        </div>
+                    ) : null}
+
+                    <p className="text-lg md:text-2xl font-serif tracking-wide mt-6 md:mt-16 drop-shadow-md">Discover Your Bespoke Journey</p>
                 </div>
 
                 <div id="book" className="absolute bottom-10 md:bottom-20 w-full max-w-[1000px] px-6 z-30">

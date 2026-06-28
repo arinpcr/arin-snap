@@ -13,7 +13,12 @@ export default function MemberPortal() {
     const [loading, setLoading] = useState(true);
     const [user, setUser] = useState(null);
 
-    // --- STATE UNTUK FITUR INTERAKTIF DUMMY ---
+    // CRM Dynamic States
+    const [points, setPoints] = useState(12500);
+    const [tierInfo, setTierInfo] = useState({ tier: "GOLD", discount: 15, nextTier: "PLATINUM", nextReq: 25000 });
+    const [pastStays, setPastStays] = useState([]);
+
+    // --- STATE UNTUK FITUR INTERAKTIF ---
     const [toastMessage, setToastMessage] = useState("");
     const [isChatOpen, setIsChatOpen] = useState(false);
     const [chatInput, setChatInput] = useState("");
@@ -49,6 +54,53 @@ export default function MemberPortal() {
         }
     ];
 
+    const calculateTier = (pts) => {
+        if (pts >= 25000) return { tier: "PLATINUM", discount: 20, nextTier: "MAX", nextReq: 25000 };
+        if (pts >= 10000) return { tier: "GOLD", discount: 15, nextTier: "PLATINUM", nextReq: 25000 };
+        if (pts >= 2500) return { tier: "SILVER", discount: 10, nextTier: "GOLD", nextReq: 10000 };
+        return { tier: "BRONZE", discount: 5, nextTier: "SILVER", nextReq: 2500 };
+    };
+
+    const fetchMemberData = async (currentUser) => {
+        try {
+            let { data: ptsData, error: ptsError } = await supabase
+                .from('member_points')
+                .select('*')
+                .eq('user_id', currentUser.id)
+                .single();
+
+            if (!ptsData && !ptsError?.message?.includes("multiple")) {
+                const initialPoints = 12500;
+                const { data: newPts } = await supabase
+                    .from('member_points')
+                    .insert([{ user_id: currentUser.id, points: initialPoints, tier: 'GOLD' }])
+                    .select()
+                    .single();
+                ptsData = newPts || { points: initialPoints, tier: 'GOLD' };
+            }
+
+            if (ptsData) {
+                setPoints(ptsData.points);
+                setTierInfo(calculateTier(ptsData.points));
+            }
+        } catch (e) {
+            console.error("Error fetching points:", e);
+        }
+
+        try {
+            const fullName = currentUser.user_metadata?.full_name || localStorage.getItem("registeredName") || "";
+            const { data: bookings } = await supabase
+                .from('booking')
+                .select('*')
+                .or(`user_id.eq.${currentUser.id}${fullName ? `,name.ilike.%${fullName}%` : ''}`)
+                .order('id', { ascending: false });
+
+            setPastStays(bookings || []);
+        } catch (e) {
+            console.error("Error fetching bookings:", e);
+        }
+    };
+
     useEffect(() => {
         const getProfile = async () => {
             const { data: { user } } = await supabase.auth.getUser();
@@ -57,6 +109,7 @@ export default function MemberPortal() {
                 return;
             }
             setUser(user);
+            await fetchMemberData(user);
             setLoading(false);
         };
         getProfile();
@@ -79,6 +132,42 @@ export default function MemberPortal() {
     const showToast = (message) => {
         setToastMessage(message);
         setTimeout(() => setToastMessage(""), 3000);
+    };
+
+    const handleBookRoom = async (room) => {
+        if (!user) return;
+        try {
+            const newBookingId = `#BKG-${Math.floor(Math.random() * 9000) + 1000}`;
+            const today = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+            const fullName = user.user_metadata?.full_name || localStorage.getItem("registeredName") || "Capella Member";
+
+            await supabase.from('booking').insert([{
+                booking_id: newBookingId,
+                name: fullName,
+                status: 'Confirmed',
+                price: room.price,
+                date: today,
+                user_id: user.id,
+                room_title: room.title
+            }]);
+
+            const addedPoints = 1500;
+            const newTotalPoints = points + addedPoints;
+            const newTierInfo = calculateTier(newTotalPoints);
+
+            await supabase.from('member_points').upsert({
+                user_id: user.id,
+                points: newTotalPoints,
+                tier: newTierInfo.tier
+            }, { onConflict: 'user_id' });
+
+            setPoints(newTotalPoints);
+            setTierInfo(newTierInfo);
+            showToast(`Reservasi ${room.title} berhasil! (+${addedPoints} Pts)`);
+            await fetchMemberData(user);
+        } catch (err) {
+            showToast("Gagal memesan kamar: " + err.message);
+        }
     };
 
     // Fungsi simulasi Chatbot AI / Admin
@@ -110,10 +199,10 @@ export default function MemberPortal() {
         );
     }
 
-    const fullName = user?.user_metadata?.full_name || "Capella Member";
-    const loyaltyTier = user?.user_metadata?.role === "member" ? "GOLD" : "SILVER";
-    const nextTier = loyaltyTier === "SILVER" ? "GOLD" : "PLATINUM";
-    const progressPercentage = 75;
+    const fullName = user?.user_metadata?.full_name || localStorage.getItem("registeredName") || "Capella Member";
+    const { tier: loyaltyTier, discount: discountRate, nextTier, nextReq } = tierInfo;
+    const progressPercentage = nextTier === "MAX" ? 100 : Math.min(100, Math.round((points / nextReq) * 100));
+    const pointsNeeded = nextTier === "MAX" ? 0 : Math.max(0, nextReq - points);
 
     return (
         <div className="min-h-screen bg-white text-gray-900 font-sans scroll-smooth relative">
@@ -165,7 +254,7 @@ export default function MemberPortal() {
                 <div className="relative z-20 text-center text-white mt-10">
                     <div className="inline-flex items-center justify-center gap-2 border border-orange-500/50 bg-black/30 backdrop-blur-sm px-4 py-1.5 mb-6">
                         <FaCrown className="text-orange-400 text-xs" />
-                        <span className="text-[10px] text-white font-bold tracking-[0.2em] uppercase">{loyaltyTier} MEMBER</span>
+                        <span className="text-[10px] text-white font-bold tracking-[0.2em] uppercase">{loyaltyTier} MEMBER ({discountRate}% OFF)</span>
                     </div>
                     <h2 className="text-3xl md:text-5xl font-serif tracking-[0.2em] uppercase mb-4 drop-shadow-md">
                         Your Journey Awaits
@@ -181,14 +270,18 @@ export default function MemberPortal() {
                 <div className="bg-white shadow-xl shadow-gray-200/50 border border-gray-100 p-6 flex flex-col md:flex-row items-center justify-between gap-6">
                     <div className="w-full md:w-2/3">
                         <div className="flex justify-between text-[10px] font-bold uppercase tracking-[0.2em] mb-3">
-                            <span className="text-orange-500">{loyaltyTier}</span>
+                            <span className="text-orange-500">{loyaltyTier} ({points.toLocaleString()} PTS)</span>
                             <span className="text-gray-400">{nextTier}</span>
                         </div>
                         <div className="w-full bg-gray-100 h-1.5 overflow-hidden">
                             <div className="bg-orange-500 h-full" style={{ width: `${progressPercentage}%` }}></div>
                         </div>
                         <p className="text-[11px] text-gray-500 mt-3 font-light tracking-wide">
-                            Hanya butuh <strong className="text-gray-900">2.500 poin</strong> lagi untuk mencapai status {nextTier} dan menikmati layanan Butler pribadi.
+                            {nextTier === "MAX" ? (
+                                <>Anda telah mencapai status tertinggi <strong className="text-gray-900">PLATINUM</strong> dengan diskon eksklusif 20%!</>
+                            ) : (
+                                <>Hanya butuh <strong className="text-gray-900">{pointsNeeded.toLocaleString()} poin</strong> lagi untuk mencapai status {nextTier} dan menikmati benefit diskon hingga {nextTier === "PLATINUM" ? "20%" : "15%"}.</>
+                            )}
                         </p>
                     </div>
                     <div className="w-full md:w-auto">
@@ -209,7 +302,7 @@ export default function MemberPortal() {
                             <div className="flex justify-between items-start mb-6">
                                 <div>
                                     <span className="text-[9px] text-orange-500 font-bold tracking-[0.2em] uppercase block mb-2">Points Balance</span>
-                                    <h3 className="text-2xl font-serif text-gray-900">12,500 <span className="text-sm text-gray-400 font-sans tracking-normal">Pts</span></h3>
+                                    <h3 className="text-2xl font-serif text-gray-900">{points.toLocaleString()} <span className="text-sm text-gray-400 font-sans tracking-normal">Pts</span></h3>
                                 </div>
                                 <FaStar className="text-orange-300 text-3xl" />
                             </div>
@@ -224,7 +317,7 @@ export default function MemberPortal() {
                             <div className="flex justify-between items-start mb-6">
                                 <div>
                                     <span className="text-[9px] text-orange-500 font-bold tracking-[0.2em] uppercase block mb-2">My Stays</span>
-                                    <h3 className="text-xl font-serif text-gray-900">No Active Booking</h3>
+                                    <h3 className="text-xl font-serif text-gray-900">{pastStays.length > 0 ? `${pastStays.length} Reservasi Aktif` : "No Active Booking"}</h3>
                                 </div>
                                 <FaRegCalendarCheck className="text-gray-300 text-3xl" />
                             </div>
@@ -311,7 +404,7 @@ export default function MemberPortal() {
                                         <p className="text-[10px] text-gray-400 tracking-[0.1em] uppercase">Member Rate</p>
                                         <p className="text-lg font-serif text-orange-600 mt-1">{room.price}</p>
                                     </div>
-                                    <span onClick={() => showToast(`Reservasi ${room.title} ditambahkan ke sesi Anda.`)} className="text-[10px] text-gray-900 font-bold uppercase tracking-[0.2em] group-hover:text-orange-500 transition-colors border-b border-gray-900 group-hover:border-orange-500 pb-1">
+                                    <span onClick={() => handleBookRoom(room)} className="text-[10px] text-gray-900 font-bold uppercase tracking-[0.2em] group-hover:text-orange-500 transition-colors border-b border-gray-900 group-hover:border-orange-500 pb-1 cursor-pointer">
                                         Book Now
                                     </span>
                                 </div>
@@ -320,24 +413,37 @@ export default function MemberPortal() {
                     </div>
                     
                     {/* RIWAYAT MENGINAP (Past Stays) */}
-                    <div className="mt-16 bg-white border border-gray-100 p-8 flex flex-col md:flex-row justify-between items-center gap-6">
-                        <div className="flex items-center gap-6">
-                            <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center">
-                                <FaHistory className="text-gray-400 text-xl" />
+                    <div className="mt-16">
+                        <h3 className="text-xl font-serif text-gray-800 tracking-wider uppercase mb-6 text-center md:text-left">My Booking History</h3>
+                        {pastStays.length > 0 ? (
+                            pastStays.map((stay, idx) => (
+                                <div key={idx} className="mb-4 bg-white border border-gray-100 p-6 md:p-8 flex flex-col md:flex-row justify-between items-center gap-6 shadow-sm hover:border-orange-200 transition-all">
+                                    <div className="flex items-center gap-6">
+                                        <div className="w-12 h-12 bg-orange-50 rounded-full flex items-center justify-center shrink-0">
+                                            <FaHistory className="text-orange-500 text-xl" />
+                                        </div>
+                                        <div>
+                                            <span className="text-[9px] font-bold tracking-[0.2em] uppercase bg-gray-100 text-gray-600 px-2 py-0.5 rounded mr-2">{stay.booking_id || `#BKG-${idx+100}`}</span>
+                                            <span className="text-[9px] font-bold tracking-[0.2em] uppercase bg-orange-100 text-orange-600 px-2 py-0.5 rounded">{stay.status || 'Confirmed'}</span>
+                                            <h4 className="font-serif text-gray-900 text-lg mt-2">{stay.room_title || stay.name || "Capella Luxury Suite"}</h4>
+                                            <p className="text-xs text-gray-500 font-light mt-1">Total: <strong className="text-gray-800">{stay.price || 'Rp 3.500.000'}</strong> | Tanggal: {stay.date || 'Baru saja'}</p>
+                                        </div>
+                                    </div>
+                                    <div className="flex gap-4 w-full md:w-auto">
+                                        <button onClick={() => showToast("Form ulasan akan segera dibuka.")} className="flex-1 md:flex-none text-[10px] text-gray-500 font-bold uppercase tracking-[0.2em] border border-gray-200 px-6 py-3 hover:bg-gray-50 transition-colors cursor-pointer">
+                                            Leave a Review
+                                        </button>
+                                        <button onClick={() => handleBookRoom({ title: stay.room_title || "Capella Luxury Suite", price: stay.price || "Rp 3.500.000" })} className="flex-1 md:flex-none text-[10px] bg-gray-900 text-white font-bold uppercase tracking-[0.2em] px-6 py-3 hover:bg-orange-500 transition-colors cursor-pointer">
+                                            Book Again
+                                        </button>
+                                    </div>
+                                </div>
+                            ))
+                        ) : (
+                            <div className="bg-white border border-gray-100 p-8 text-center text-gray-500 text-xs font-light">
+                                Belum ada riwayat reservasi. Klik "Book Now" pada daftar kamar rekomendasi di atas untuk melakukan reservasi pertama Anda!
                             </div>
-                            <div>
-                                <h4 className="font-serif text-gray-900 text-lg">Capella Ubud, Bali</h4>
-                                <p className="text-xs text-gray-500 font-light mt-1">Menginap pada 12 - 15 Oktober 2025</p>
-                            </div>
-                        </div>
-                        <div className="flex gap-4 w-full md:w-auto">
-                            <button onClick={() => showToast("Form ulasan akan segera dibuka.")} className="flex-1 md:flex-none text-[10px] text-gray-500 font-bold uppercase tracking-[0.2em] border border-gray-200 px-6 py-3 hover:bg-gray-50 transition-colors">
-                                Leave a Review
-                            </button>
-                            <button onClick={() => showToast("Menyiapkan pemesanan ulang untuk tanggal yang sama...")} className="flex-1 md:flex-none text-[10px] bg-gray-900 text-white font-bold uppercase tracking-[0.2em] px-6 py-3 hover:bg-orange-500 transition-colors">
-                                Book Again
-                            </button>
-                        </div>
+                        )}
                     </div>
                 </div>
             </section>
