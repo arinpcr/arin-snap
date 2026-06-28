@@ -72,7 +72,11 @@ export default function Register() {
             navigate("/login");
 
         } catch (error) {
-            alert(error.message || "Gagal mendaftar, silakan coba lagi.");
+            if (error.message && (error.message.toLowerCase().includes("rate limit") || error.status === 429)) {
+                alert("Batas pengiriman email konfirmasi Supabase (Rate Limit) telah tercapai.\n\nSOLUSI MUDAH:\n1. Buka Dashboard Supabase -> Authentication -> Providers -> Email.\n2. Matikan opsi 'Confirm email' (Enable Email Confirmations).\n3. Klik Save. Setelah dimatikan, Anda bisa mendaftar akun baru sepuasnya tanpa gangguan rate limit!");
+            } else {
+                alert(error.message || "Gagal mendaftar, silakan coba lagi.");
+            }
         } finally {
             setLoading(false);
         }
