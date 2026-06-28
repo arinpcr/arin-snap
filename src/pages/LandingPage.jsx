@@ -1,9 +1,86 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { FaStar, FaChevronDown, FaChevronUp, FaEnvelope, FaShoppingCart, FaQuoteLeft } from "react-icons/fa";
+import { supabase } from "../lib/supabase";
 
 export default function LandingPage() {
+    const navigate = useNavigate();
     const [openFaq, setOpenFaq] = useState(null);
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [userRole, setUserRole] = useState("member");
+    const [bookingForm, setBookingForm] = useState({
+        checkIn: "",
+        checkOut: "",
+        promoCode: ""
+    });
+
+    useEffect(() => {
+        const checkLogin = async () => {
+            const logged = localStorage.getItem("isLoggedIn") === "true";
+            const role = localStorage.getItem("userRole") || "member";
+            if (logged) {
+                setIsLoggedIn(true);
+                setUserRole(role);
+            } else {
+                const { data } = await supabase.auth.getSession();
+                if (data?.session) {
+                    setIsLoggedIn(true);
+                    const dbRole = data.session.user?.user_metadata?.role || "member";
+                    setUserRole(dbRole);
+                    localStorage.setItem("isLoggedIn", "true");
+                    localStorage.setItem("userRole", dbRole);
+                }
+            }
+        };
+        checkLogin();
+    }, []);
+
+    const handleLogout = async () => {
+        await supabase.auth.signOut();
+        localStorage.removeItem("isLoggedIn");
+        localStorage.removeItem("userRole");
+        localStorage.removeItem("registeredName");
+        setIsLoggedIn(false);
+        alert("Anda telah berhasil logout.");
+    };
+
+    const handleBookingChange = (evt) => {
+        const { name, value } = evt.target;
+        setBookingForm({ ...bookingForm, [name]: value });
+    };
+
+    const handleCheckRates = (e) => {
+        e.preventDefault();
+        const { checkIn, checkOut } = bookingForm;
+
+        if (!checkIn || !checkOut) {
+            alert("Silakan lengkapi tanggal Check In dan Check Out terlebih dahulu.");
+            return;
+        }
+
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const inDate = new Date(checkIn);
+        const outDate = new Date(checkOut);
+
+        if (inDate < today) {
+            alert("Tanggal Check In tidak boleh di masa lampau.");
+            return;
+        }
+
+        if (outDate <= inDate) {
+            alert("Tanggal Check Out harus setelah tanggal Check In.");
+            return;
+        }
+
+        if (!isLoggedIn) {
+            alert("Kamar tersedia! Silakan login atau daftar terlebih dahulu untuk melanjutkan reservasi.");
+            navigate("/login");
+        } else {
+            alert(`Kamar tersedia untuk tanggal ${checkIn} hingga ${checkOut}! Mengarahkan ke Portal...`);
+            navigate(userRole === "staff" ? "/dashboard" : "/member-portal");
+        }
+    };
 
     const toggleFaq = (index) => {
         setOpenFaq(openFaq === index ? null : index);
@@ -50,12 +127,25 @@ export default function LandingPage() {
                 </div>
 
                 <div className="flex items-center gap-6 ml-auto">
-                    <Link to="/login" className="text-[11px] font-bold tracking-[0.2em] text-gray-400 hover:text-orange-500 transition-colors hidden md:block uppercase">
-                        Staff Login
-                    </Link>
-                    <a href="#book" className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 text-[11px] font-bold tracking-[0.2em] uppercase transition-all">
-                        Book Your Stay
-                    </a>
+                    {isLoggedIn ? (
+                        <>
+                            <button onClick={handleLogout} className="text-[11px] font-bold tracking-[0.2em] text-gray-400 hover:text-orange-500 transition-colors hidden md:block uppercase cursor-pointer">
+                                Logout
+                            </button>
+                            <Link to={userRole === "staff" ? "/dashboard" : "/member-portal"} className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 text-[11px] font-bold tracking-[0.2em] uppercase transition-all inline-block">
+                                Go to Portal
+                            </Link>
+                        </>
+                    ) : (
+                        <>
+                            <Link to="/login" className="text-[11px] font-bold tracking-[0.2em] text-gray-400 hover:text-orange-500 transition-colors hidden md:block uppercase">
+                                Staff Login
+                            </Link>
+                            <a href="#book" className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 text-[11px] font-bold tracking-[0.2em] uppercase transition-all">
+                                Book Your Stay
+                            </a>
+                        </>
+                    )}
                 </div>
             </nav>
 
@@ -77,25 +167,25 @@ export default function LandingPage() {
                 </div>
 
                 <div id="book" className="absolute bottom-10 md:bottom-20 w-full max-w-[1000px] px-6 z-30">
-                    <div className="bg-white p-4 md:p-6 flex flex-col md:flex-row gap-4 items-end shadow-2xl border-t-4 border-orange-500">
+                    <form onSubmit={handleCheckRates} className="bg-white p-4 md:p-6 flex flex-col md:flex-row gap-4 items-end shadow-2xl border-t-4 border-orange-500">
                         <div className="flex-1 w-full border-b md:border-b-0 md:border-r border-gray-200 pb-4 md:pb-0 md:pr-4">
                             <label className="text-[10px] text-gray-400 font-bold tracking-[0.2em] uppercase block mb-2">Check In</label>
-                            <input type="date" className="w-full outline-none text-gray-800 text-sm font-serif" />
+                            <input type="date" name="checkIn" value={bookingForm.checkIn} onChange={handleBookingChange} className="w-full outline-none text-gray-800 text-sm font-serif" required />
                         </div>
                         <div className="flex-1 w-full border-b md:border-b-0 md:border-r border-gray-200 pb-4 md:pb-0 md:pr-4 md:pl-4">
                             <label className="text-[10px] text-gray-400 font-bold tracking-[0.2em] uppercase block mb-2">Check Out</label>
-                            <input type="date" className="w-full outline-none text-gray-800 text-sm font-serif" />
+                            <input type="date" name="checkOut" value={bookingForm.checkOut} onChange={handleBookingChange} className="w-full outline-none text-gray-800 text-sm font-serif" required />
                         </div>
                         <div className="flex-1 w-full border-b md:border-b-0 md:border-r border-gray-200 pb-4 md:pb-0 md:pr-4 md:pl-4">
                             <label className="text-[10px] text-gray-400 font-bold tracking-[0.2em] uppercase block mb-2">Promo Code</label>
-                            <input type="text" placeholder="e.g. CAPELLA2026" className="w-full outline-none text-gray-800 text-sm font-serif placeholder-gray-300 uppercase" />
+                            <input type="text" name="promoCode" value={bookingForm.promoCode} onChange={handleBookingChange} placeholder="e.g. CAPELLA2026" className="w-full outline-none text-gray-800 text-sm font-serif placeholder-gray-300 uppercase" />
                         </div>
                         <div className="md:pl-4 w-full md:w-auto">
-                            <button className="w-full bg-gray-900 hover:bg-orange-500 text-white px-8 py-4 text-[11px] font-bold tracking-[0.2em] uppercase transition-all">
+                            <button type="submit" className="w-full bg-gray-900 hover:bg-orange-500 text-white px-8 py-4 text-[11px] font-bold tracking-[0.2em] uppercase transition-all">
                                 Check Rates
                             </button>
                         </div>
-                    </div>
+                    </form>
                 </div>
             </header>
 
