@@ -38,15 +38,7 @@ export default function LandingPage() {
         const fetchLandingReviews = async () => {
             try {
                 const { data } = await supabase.from('reviews').select('*').order('created_at', { ascending: false }).limit(6);
-                if (data && data.length > 0) {
-                    setReviews(data);
-                } else {
-                    setReviews([
-                        { id: 1, name: "Eleanor Vance", room_title: "Oceanview Pool Villa", rating: 5, comment: "Pengalaman menginap yang luar biasa! Pelayanan butler sangat sigap dan privasi benar-benar terjaga dengan sempurna." },
-                        { id: 2, name: "Alexander Wright", room_title: "Royal Penthouse Suite", rating: 5, comment: "Fasilitas lounge eksklusif dan penukaran poin Capella Circle sungguh memberikan keuntungan yang sangat bernilai." },
-                        { id: 3, name: "Sophia Martinez", room_title: "Grand Deluxe Sanctuary", rating: 5, comment: "Aroma diffuser di kamar dan kenyamanan kasur membuat liburan keluarga kami menjadi momen yang tak terlupakan." }
-                    ]);
-                }
+                setReviews(data || []);
             } catch (e) {
                 console.error("Error fetching landing reviews:", e);
             }
@@ -356,40 +348,42 @@ export default function LandingPage() {
                 </div>
             </section>
 
-            {/* --- 6. GUEST REVIEWS SECTION --- */}
-            <section id="reviews" className="py-24 px-6 md:px-16 bg-[#FFF4EA]/50 border-t border-gray-100">
-                <div className="max-w-[1400px] mx-auto">
-                    <div className="text-center mb-16">
-                        <span className="text-[10px] text-orange-500 font-bold uppercase tracking-[0.2em] block mb-4">Testimonials</span>
-                        <h2 className="text-3xl md:text-4xl font-serif text-gray-800 tracking-widest uppercase mb-4">What Our Guests Say</h2>
-                        <p className="text-sm text-gray-500 font-light tracking-wide max-w-xl mx-auto">Ulasan nyata dari member Capella Circle yang telah menikmati pengalaman menginap kelas dunia bersama kami.</p>
-                    </div>
+            {/* --- 6. GUEST REVIEWS SECTION (Hanya tampil jika ada review asli dari database member) --- */}
+            {reviews.length > 0 && (
+                <section id="reviews" className="py-24 px-6 md:px-16 bg-[#FFF4EA]/50 border-t border-gray-100">
+                    <div className="max-w-[1400px] mx-auto">
+                        <div className="text-center mb-16">
+                            <span className="text-[10px] text-orange-500 font-bold uppercase tracking-[0.2em] block mb-4">Testimonials</span>
+                            <h2 className="text-3xl md:text-4xl font-serif text-gray-800 tracking-widest uppercase mb-4">What Our Guests Say</h2>
+                            <p className="text-sm text-gray-500 font-light tracking-wide max-w-xl mx-auto">Ulasan nyata dari member Capella Circle yang telah menikmati pengalaman menginap kelas dunia bersama kami.</p>
+                        </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                        {reviews.map((rev, idx) => (
-                            <div key={rev.id || idx} className="bg-white border border-gray-200/80 p-8 rounded-3xl shadow-sm hover:shadow-xl hover:border-orange-300 transition-all flex flex-col justify-between">
-                                <div>
-                                    <div className="flex items-center gap-1 text-orange-400 mb-6">
-                                        {[...Array(rev.rating || 5)].map((_, i) => (
-                                            <FaStar key={i} className="text-sm" />
-                                        ))}
-                                    </div>
-                                    <p className="text-xs text-gray-600 italic font-light leading-relaxed mb-8">"{rev.comment}"</p>
-                                </div>
-                                <div className="border-t border-gray-100 pt-5 flex items-center gap-3">
-                                    <div className="w-10 h-10 rounded-full bg-gray-900 text-orange-400 font-serif font-bold flex items-center justify-center text-sm uppercase shrink-0 shadow-sm">
-                                        {rev.name ? rev.name.charAt(0) : "M"}
-                                    </div>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                            {reviews.map((rev, idx) => (
+                                <div key={rev.id || idx} className="bg-white border border-gray-200/80 p-8 rounded-3xl shadow-sm hover:shadow-xl hover:border-orange-300 transition-all flex flex-col justify-between">
                                     <div>
-                                        <h4 className="font-serif font-bold text-gray-900 text-sm">{rev.name}</h4>
-                                        <p className="text-[10px] text-gray-400 tracking-wider uppercase mt-0.5">{rev.room_title || "Capella Guest"}</p>
+                                        <div className="flex items-center gap-1 text-orange-400 mb-6">
+                                            {[...Array(rev.rating || 5)].map((_, i) => (
+                                                <FaStar key={i} className="text-sm" />
+                                            ))}
+                                        </div>
+                                        <p className="text-xs text-gray-600 italic font-light leading-relaxed mb-8">"{rev.comment}"</p>
+                                    </div>
+                                    <div className="border-t border-gray-100 pt-5 flex items-center gap-3">
+                                        <div className="w-10 h-10 rounded-full bg-gray-900 text-orange-400 font-serif font-bold flex items-center justify-center text-sm uppercase shrink-0 shadow-sm">
+                                            {rev.name ? rev.name.charAt(0) : "M"}
+                                        </div>
+                                        <div>
+                                            <h4 className="font-serif font-bold text-gray-900 text-sm">{rev.name}</h4>
+                                            <p className="text-[10px] text-gray-400 tracking-wider uppercase mt-0.5">{rev.room_title || "Capella Guest"}</p>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        ))}
+                            ))}
+                        </div>
                     </div>
-                </div>
-            </section>
+                </section>
+            )}
 
             {/* --- 7. FAQ --- */}
             <section className="py-24 px-6 md:px-16 bg-gray-50/30 border-t border-gray-100">
