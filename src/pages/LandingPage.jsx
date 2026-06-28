@@ -101,10 +101,12 @@ export default function LandingPage() {
             
             {/* --- 1. NAVBAR --- */}
             <nav className="fixed w-full z-50 bg-white/90 backdrop-blur-md border-b border-gray-100 py-4 px-6 md:px-12 flex justify-between items-center transition-all duration-300 hover:bg-white">
-                <div className="hidden md:flex gap-10 text-[11px] font-bold tracking-[0.2em] text-gray-500 uppercase">
-                    <a href="#offers" className="hover:text-orange-500 transition-colors">Exclusive Offers</a>
-                    <a href="#boutique" className="hover:text-orange-500 transition-colors">Boutique</a>
-                    <a href="#loyalty" className="hover:text-orange-500 transition-colors">Capella Circle</a>
+                <div className="hidden xl:flex gap-8 text-[11px] font-bold tracking-[0.2em] text-gray-500 uppercase">
+                    <a href="#about" className="hover:text-orange-500 transition-colors">About</a>
+                    <a href="#facilities" className="hover:text-orange-500 transition-colors">Facilities</a>
+                    <a href="#offers" className="hover:text-orange-500 transition-colors">Offers</a>
+                    <a href="#gallery" className="hover:text-orange-500 transition-colors">Gallery</a>
+                    <a href="#rewards" className="hover:text-orange-500 transition-colors">Rewards</a>
                 </div>
 
                 <div className="flex flex-col items-center absolute left-1/2 -translate-x-1/2 cursor-pointer">
@@ -185,6 +187,124 @@ export default function LandingPage() {
                     </form>
                 </div>
             </header>
+
+            {/* --- SECTION: ABOUT CAPELLA --- */}
+            <section id="about" className="py-28 px-6 md:px-16 bg-white overflow-hidden">
+                <div className="max-w-[1400px] mx-auto">
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-center">
+                        <div className="lg:col-span-5 relative">
+                            <div className="relative z-10 overflow-hidden rounded-3xl shadow-2xl border-4 border-white">
+                                <img src="https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?q=80&w=1000&auto=format&fit=crop" alt="Capella Craftsmanship" className="w-full h-[550px] object-cover hover:scale-105 transition-transform duration-1000" />
+                            </div>
+                            <div className="absolute -bottom-8 -right-8 w-64 h-64 bg-orange-50 rounded-3xl -z-0 border border-orange-100 hidden sm:block"></div>
+                            <div className="absolute top-8 -left-8 bg-gray-900 text-white p-8 rounded-2xl shadow-xl z-20 max-w-[220px]">
+                                <FaStar className="text-orange-400 text-2xl mb-2" />
+                                <h4 className="font-serif text-2xl font-bold">No. 1</h4>
+                                <p className="text-[10px] tracking-widest text-gray-300 uppercase mt-1">World's Best Hotel Brand</p>
+                            </div>
+                        </div>
+                        
+                        <div className="lg:col-span-7 lg:pl-8">
+                            <span className="text-[10px] text-orange-500 font-bold uppercase tracking-[0.25em] block mb-4">The Capella Philosophy</span>
+                            <h2 className="text-3xl md:text-5xl font-serif text-gray-900 tracking-wide uppercase leading-tight mb-8">A Sanctuary of Timeless Elegance & Bespoke Luxury</h2>
+                            <p className="text-base text-gray-600 font-light leading-relaxed mb-6">
+                                Capella Hotels and Resorts lahir dari filosofi bahwa kemewahan sejati bukanlah sekadar kemegahan visual, melainkan harmonisasi sempurna antara warisan budaya lokal, arsitektur kelas dunia, dan pelayanan yang dilayani dari hati.
+                            </p>
+                            <p className="text-sm text-gray-500 font-light leading-relaxed mb-10">
+                                Setiap properti kami dirancang sebagai tempat persembunyian eksklusif di mana waktu melambat. Dari momen Anda menapakkan kaki, dedikasi <strong className="text-gray-800 font-semibold">Capella Culturist</strong> (butler pribadi Anda) siap merangkai setiap detil perjalanan Anda menjadi memori yang tak lekang oleh waktu.
+                            </p>
+                            
+                            <div className="grid grid-cols-3 gap-6 pt-8 border-t border-gray-100">
+                                <div>
+                                    <h3 className="text-2xl md:text-3xl font-serif font-bold text-gray-900">100%</h3>
+                                    <p className="text-[11px] text-gray-400 tracking-wider uppercase mt-1">Personalized Butler</p>
+                                </div>
+                                <div>
+                                    <h3 className="text-2xl md:text-3xl font-serif font-bold text-gray-900">7+</h3>
+                                    <p className="text-[11px] text-gray-400 tracking-wider uppercase mt-1">Global Sanctuaries</p>
+                                </div>
+                                <div>
+                                    <h3 className="text-2xl md:text-3xl font-serif font-bold text-gray-900">5-Star</h3>
+                                    <p className="text-[11px] text-gray-400 tracking-wider uppercase mt-1">Forbes Travel Guide</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* --- SECTION: WORLD-CLASS FACILITIES --- */}
+            <section id="facilities" className="py-28 px-6 md:px-16 bg-[#FFF4EA]/40 border-t border-gray-100">
+                <div className="max-w-[1400px] mx-auto">
+                    <div className="text-center max-w-3xl mx-auto mb-20">
+                        <span className="text-[10px] text-orange-500 font-bold uppercase tracking-[0.25em] block mb-4">World-Class Amenities</span>
+                        <h2 className="text-3xl md:text-4xl font-serif text-gray-900 tracking-widest uppercase mb-6">Fasilitas & Layanan Eksklusif</h2>
+                        <p className="text-sm text-gray-500 font-light leading-relaxed">Nikmati standar kenyamanan tertinggi yang dirancang khusus untuk memenuhi gaya hidup kaum elit global dan memberi relaksasi menyeluruh bagi jiwa dan raga.</p>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                        <div className="bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 border border-gray-100 group flex flex-col justify-between">
+                            <div className="relative overflow-hidden h-64">
+                                <img src="https://images.unsplash.com/photo-1540555700478-4be289fbecef?q=80&w=800&auto=format&fit=crop" alt="Auriga Spa" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000" />
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+                                <span className="absolute bottom-4 left-4 text-white text-xs font-serif font-bold tracking-wider uppercase">Wellness Sanctuary</span>
+                            </div>
+                            <div className="p-8 flex-1 flex flex-col justify-between">
+                                <div>
+                                    <h3 className="text-xl font-serif font-bold text-gray-900 mb-3">Auriga Spa & Wellness</h3>
+                                    <p className="text-xs text-gray-500 font-light leading-relaxed mb-6">Perawatan holistik berlandaskan fase siklus bulan dengan bahan organik alami untuk memulihkan vitalitas tubuh.</p>
+                                </div>
+                                <span className="text-[10px] text-orange-500 font-bold uppercase tracking-[0.2em]">Explore Spa →</span>
+                            </div>
+                        </div>
+
+                        <div className="bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 border border-gray-100 group flex flex-col justify-between">
+                            <div className="relative overflow-hidden h-64">
+                                <img src="https://images.unsplash.com/photo-1576013551627-0cc20b96c2a7?q=80&w=800&auto=format&fit=crop" alt="Vitality Pool" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000" />
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+                                <span className="absolute bottom-4 left-4 text-white text-xs font-serif font-bold tracking-wider uppercase">Panoramic Vistas</span>
+                            </div>
+                            <div className="p-8 flex-1 flex flex-col justify-between">
+                                <div>
+                                    <h3 className="text-xl font-serif font-bold text-gray-900 mb-3">Infinity Vitality Pool</h3>
+                                    <p className="text-xs text-gray-500 font-light leading-relaxed mb-6">Kolam renang air hangat bertingkat yang menghadap langsung ke panorama alam terbuka yang memukau dan menenangkan.</p>
+                                </div>
+                                <span className="text-[10px] text-orange-500 font-bold uppercase tracking-[0.2em]">Explore Pool →</span>
+                            </div>
+                        </div>
+
+                        <div className="bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 border border-gray-100 group flex flex-col justify-between">
+                            <div className="relative overflow-hidden h-64">
+                                <img src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=800&auto=format&fit=crop" alt="Michelin Dining" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000" />
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+                                <span className="absolute bottom-4 left-4 text-white text-xs font-serif font-bold tracking-wider uppercase">Fine Dining</span>
+                            </div>
+                            <div className="p-8 flex-1 flex flex-col justify-between">
+                                <div>
+                                    <h3 className="text-xl font-serif font-bold text-gray-900 mb-3">Michelin-Star Dining</h3>
+                                    <p className="text-xs text-gray-500 font-light leading-relaxed mb-6">Petualangan kuliner magis dari master chef internasional yang memadukan teknik modern dengan bahan lokal berkelas.</p>
+                                </div>
+                                <span className="text-[10px] text-orange-500 font-bold uppercase tracking-[0.2em]">Explore Dining →</span>
+                            </div>
+                        </div>
+
+                        <div className="bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 border border-gray-100 group flex flex-col justify-between">
+                            <div className="relative overflow-hidden h-64">
+                                <img src="https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?q=80&w=800&auto=format&fit=crop" alt="The Living Room" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000" />
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+                                <span className="absolute bottom-4 left-4 text-white text-xs font-serif font-bold tracking-wider uppercase">Private Lounge</span>
+                            </div>
+                            <div className="p-8 flex-1 flex flex-col justify-between">
+                                <div>
+                                    <h3 className="text-xl font-serif font-bold text-gray-900 mb-3">The Living Room</h3>
+                                    <p className="text-xs text-gray-500 font-light leading-relaxed mb-6">Ruang bersantai eksklusif bagi tamu untuk menikmati afternoon tea, membaca koleksi literatur langka, dan bersosialisasi.</p>
+                                </div>
+                                <span className="text-[10px] text-orange-500 font-bold uppercase tracking-[0.2em]">Explore Lounge →</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
 
             {/* --- 3. CRM FEATURE: EXCLUSIVE OFFERS --- */}
             <section id="offers" className="py-24 px-6 md:px-16 bg-gray-50/50">
@@ -324,6 +444,66 @@ export default function LandingPage() {
                 </div>
             </section>
 
+            {/* --- SECTION: GALLERY --- */}
+            <section id="gallery" className="py-28 px-6 md:px-16 bg-gray-900 text-white border-t border-gray-800">
+                <div className="max-w-[1400px] mx-auto">
+                    <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-6">
+                        <div>
+                            <span className="text-[10px] text-orange-400 font-bold uppercase tracking-[0.25em] block mb-4">Visual Journey</span>
+                            <h2 className="text-3xl md:text-5xl font-serif tracking-widest uppercase">Galeri Keindahan Capella</h2>
+                        </div>
+                        <p className="text-sm text-gray-400 font-light max-w-md">Menangkap pesona arsitektur artistik, interior mewah, dan momen-momen magis yang menanti Anda di setiap sudut resor kami.</p>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div className="md:col-span-2 overflow-hidden rounded-3xl relative group h-[400px]">
+                            <img src="https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=1200&auto=format&fit=crop" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000" alt="Resort View" />
+                            <div className="absolute inset-0 bg-black/30 group-hover:bg-black/10 transition-colors"></div>
+                            <div className="absolute bottom-6 left-6 z-10">
+                                <span className="bg-orange-500/80 backdrop-blur-md text-white text-[9px] font-bold tracking-[0.2em] uppercase px-3 py-1 rounded-full">Exterior Architecture</span>
+                                <h4 className="text-xl font-serif text-white mt-2 drop-shadow-md">The Grand Sanctuary Vista</h4>
+                            </div>
+                        </div>
+
+                        <div className="overflow-hidden rounded-3xl relative group h-[400px]">
+                            <img src="https://images.unsplash.com/photo-1618773928121-c32242e63f39?q=80&w=800&auto=format&fit=crop" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000" alt="Bedroom Suite" />
+                            <div className="absolute inset-0 bg-black/30 group-hover:bg-black/10 transition-colors"></div>
+                            <div className="absolute bottom-6 left-6 z-10">
+                                <span className="bg-orange-500/80 backdrop-blur-md text-white text-[9px] font-bold tracking-[0.2em] uppercase px-3 py-1 rounded-full">Interior Elegance</span>
+                                <h4 className="text-xl font-serif text-white mt-2 drop-shadow-md">Royal Penthouse Bedroom</h4>
+                            </div>
+                        </div>
+
+                        <div className="overflow-hidden rounded-3xl relative group h-[350px]">
+                            <img src="https://images.unsplash.com/photo-1544161515-4ab6ce6db874?q=80&w=800&auto=format&fit=crop" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000" alt="Spa Wellness" />
+                            <div className="absolute inset-0 bg-black/30 group-hover:bg-black/10 transition-colors"></div>
+                            <div className="absolute bottom-6 left-6 z-10">
+                                <span className="bg-orange-500/80 backdrop-blur-md text-white text-[9px] font-bold tracking-[0.2em] uppercase px-3 py-1 rounded-full">Wellness</span>
+                                <h4 className="text-xl font-serif text-white mt-2 drop-shadow-md">Auriga Spa Treatment Room</h4>
+                            </div>
+                        </div>
+
+                        <div className="overflow-hidden rounded-3xl relative group h-[350px]">
+                            <img src="https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?q=80&w=800&auto=format&fit=crop" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000" alt="Fine Dining" />
+                            <div className="absolute inset-0 bg-black/30 group-hover:bg-black/10 transition-colors"></div>
+                            <div className="absolute bottom-6 left-6 z-10">
+                                <span className="bg-orange-500/80 backdrop-blur-md text-white text-[9px] font-bold tracking-[0.2em] uppercase px-3 py-1 rounded-full">Gastronomy</span>
+                                <h4 className="text-xl font-serif text-white mt-2 drop-shadow-md">Michelin Dining Experience</h4>
+                            </div>
+                        </div>
+
+                        <div className="overflow-hidden rounded-3xl relative group h-[350px]">
+                            <img src="https://images.unsplash.com/photo-1584132967334-10e028bd69f7?q=80&w=800&auto=format&fit=crop" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000" alt="Sunset Pool" />
+                            <div className="absolute inset-0 bg-black/30 group-hover:bg-black/10 transition-colors"></div>
+                            <div className="absolute bottom-6 left-6 z-10">
+                                <span className="bg-orange-500/80 backdrop-blur-md text-white text-[9px] font-bold tracking-[0.2em] uppercase px-3 py-1 rounded-full">Relaxation</span>
+                                <h4 className="text-xl font-serif text-white mt-2 drop-shadow-md">Sunset Infinity Pool</h4>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
             {/* --- 6. GUEST REVIEWS SECTION (Hanya tampil jika ada review asli dari database member) --- */}
             {reviews.length > 0 && (
                 <section id="reviews" className="py-24 px-6 md:px-16 bg-[#FFF4EA]/50 border-t border-gray-100">
@@ -360,6 +540,73 @@ export default function LandingPage() {
                     </div>
                 </section>
             )}
+
+            {/* --- SECTION: REWARDS CATALOG PREVIEW --- */}
+            <section id="rewards" className="py-28 px-6 md:px-16 bg-gradient-to-b from-white to-[#FFF4EA]/50 border-t border-gray-100">
+                <div className="max-w-[1400px] mx-auto">
+                    <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-6">
+                        <div>
+                            <span className="text-[10px] text-orange-500 font-bold uppercase tracking-[0.25em] block mb-4">Circle Rewards Catalog</span>
+                            <h2 className="text-3xl md:text-5xl font-serif text-gray-900 tracking-widest uppercase">Keistimewaan Penukaran Poin</h2>
+                        </div>
+                        <p className="text-sm text-gray-500 font-light max-w-md">Kumpulkan poin dari setiap transaksi menginap & ulasan Anda. Tukarkan dengan berbagai pengalaman mewah tak terlupakan di katalog member.</p>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+                        <div className="bg-white rounded-3xl p-8 border border-gray-200/80 shadow-sm hover:shadow-xl hover:border-orange-300 transition-all flex flex-col justify-between">
+                            <div>
+                                <div className="flex justify-between items-start mb-6">
+                                    <span className="bg-orange-100 text-orange-600 font-bold text-xs px-4 py-1.5 rounded-full uppercase tracking-wider">Stay Reward</span>
+                                    <span className="font-serif font-bold text-gray-900 text-lg">15,000 PTS</span>
+                                </div>
+                                <h3 className="text-2xl font-serif font-bold text-gray-900 mb-3">1 Night Free Stay</h3>
+                                <p className="text-xs text-gray-500 font-light leading-relaxed mb-6">Nikmati menginap gratis 1 malam di tipe kamar Luxury Suite di seluruh properti Capella di seluruh dunia.</p>
+                            </div>
+                            <Link to={isLoggedIn ? "/rewards" : "/login"} className="w-full text-center bg-gray-900 hover:bg-orange-500 text-white py-3.5 rounded-2xl text-xs font-bold uppercase tracking-widest transition-all block">
+                                Tukar Poin Sekarang →
+                            </Link>
+                        </div>
+
+                        <div className="bg-white rounded-3xl p-8 border border-gray-200/80 shadow-sm hover:shadow-xl hover:border-orange-300 transition-all flex flex-col justify-between">
+                            <div>
+                                <div className="flex justify-between items-start mb-6">
+                                    <span className="bg-emerald-100 text-emerald-600 font-bold text-xs px-4 py-1.5 rounded-full uppercase tracking-wider">Wellness</span>
+                                    <span className="font-serif font-bold text-gray-900 text-lg">5,000 PTS</span>
+                                </div>
+                                <h3 className="text-2xl font-serif font-bold text-gray-900 mb-3">Auriga Spa Package</h3>
+                                <p className="text-xs text-gray-500 font-light leading-relaxed mb-6">Voucher perawatan holistik eksklusif selama 120 menit untuk sepasang tamu di Auriga Spa.</p>
+                            </div>
+                            <Link to={isLoggedIn ? "/rewards" : "/login"} className="w-full text-center bg-gray-900 hover:bg-orange-500 text-white py-3.5 rounded-2xl text-xs font-bold uppercase tracking-widest transition-all block">
+                                Tukar Poin Sekarang →
+                            </Link>
+                        </div>
+
+                        <div className="bg-white rounded-3xl p-8 border border-gray-200/80 shadow-sm hover:shadow-xl hover:border-orange-300 transition-all flex flex-col justify-between">
+                            <div>
+                                <div className="flex justify-between items-start mb-6">
+                                    <span className="bg-purple-100 text-purple-600 font-bold text-xs px-4 py-1.5 rounded-full uppercase tracking-wider">Dining Experience</span>
+                                    <span className="font-serif font-bold text-gray-900 text-lg">8,500 PTS</span>
+                                </div>
+                                <h3 className="text-2xl font-serif font-bold text-gray-900 mb-3">Romantic Dinner for 2</h3>
+                                <p className="text-xs text-gray-500 font-light leading-relaxed mb-6">Makan malam romantis 6-course degustation menu dengan wine pairing oleh sommelier kami.</p>
+                            </div>
+                            <Link to={isLoggedIn ? "/rewards" : "/login"} className="w-full text-center bg-gray-900 hover:bg-orange-500 text-white py-3.5 rounded-2xl text-xs font-bold uppercase tracking-widest transition-all block">
+                                Tukar Poin Sekarang →
+                            </Link>
+                        </div>
+                    </div>
+
+                    <div className="bg-gray-900 text-white rounded-3xl p-10 md:p-14 text-center relative overflow-hidden shadow-2xl">
+                        <div className="relative z-10 max-w-2xl mx-auto">
+                            <h3 className="text-2xl md:text-4xl font-serif font-bold uppercase tracking-wide mb-4">Daftar Sekarang & Dapatkan Bonus 500 Poin</h3>
+                            <p className="text-sm text-gray-300 font-light leading-relaxed mb-8">Bergabunglah dengan keanggotaan eksklusif Capella Circle hari ini dan nikmati berbagai keuntungan instan sejak reservasi pertama Anda.</p>
+                            <Link to="/register" className="inline-block bg-orange-500 hover:bg-orange-600 text-white px-10 py-4 rounded-2xl text-xs font-bold uppercase tracking-[0.2em] shadow-lg transition-all">
+                                Join Capella Circle
+                            </Link>
+                        </div>
+                    </div>
+                </div>
+            </section>
 
             {/* --- 7. FAQ --- */}
             <section className="py-24 px-6 md:px-16 bg-gray-50/30 border-t border-gray-100">
