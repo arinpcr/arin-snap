@@ -86,7 +86,11 @@ export default function Login() {
                 name: userName,
                 role: dbRole
             };
-            await supabase.from('users').upsert([userData], { onConflict: 'id' }).catch(() => {});
+            try {
+                await supabase.from('users').upsert([userData], { onConflict: 'id' });
+            } catch (err) {
+                console.error("Error syncing user table on login:", err);
+            }
 
             // ARAHKAN SESUAI ROLE DATABASE
             if (dbRole === "staff") {

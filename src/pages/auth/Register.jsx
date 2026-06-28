@@ -44,27 +44,31 @@ export default function Register() {
             }
 
             if (data?.user) {
-                const userData = {
-                    id: data.user.id,
-                    email: dataForm.email.trim(),
-                    name: dataForm.name,
-                    role: role,
-                    created_at: new Date().toISOString()
-                };
-                await supabase.from('users').upsert([userData], { onConflict: 'id' }).catch(() => {});
+                try {
+                    const userData = {
+                        id: data.user.id,
+                        email: dataForm.email.trim(),
+                        name: dataForm.name,
+                        role: role,
+                        created_at: new Date().toISOString()
+                    };
+                    await supabase.from('users').upsert([userData], { onConflict: 'id' });
 
-                if (role === "member") {
-                    const guestId = `GST-${Math.floor(Math.random() * 8999) + 1000}`;
-                    await supabase.from('guest').upsert([
-                        {
-                            guest_id: guestId,
-                            name: dataForm.name,
-                            email: dataForm.email.trim(),
-                            phone: "-",
-                            visits: 1,
-                            spent: "$ 0.00"
-                        }
-                    ]).catch(() => {});
+                    if (role === "member") {
+                        const guestId = `GST-${Math.floor(Math.random() * 8999) + 1000}`;
+                        await supabase.from('guest').upsert([
+                            {
+                                guest_id: guestId,
+                                name: dataForm.name,
+                                email: dataForm.email.trim(),
+                                phone: "-",
+                                visits: 1,
+                                spent: "$ 0.00"
+                            }
+                        ]);
+                    }
+                } catch (err) {
+                    console.error("Error syncing profile table:", err);
                 }
             }
 
