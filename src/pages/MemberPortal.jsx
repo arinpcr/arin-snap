@@ -255,7 +255,7 @@ export default function MemberPortal() {
         }
         const bonusPts = 500;
         const newPts = points + bonusPts;
-        const newTierInfo = calculateTier(newPts);
+        const newTierInfo = calculateTier(newPts, txCount, txTotal);
 
         try {
             await supabase.from('member_points').upsert({
@@ -264,13 +264,25 @@ export default function MemberPortal() {
                 tier: newTierInfo.tier
             }, { onConflict: 'user_id' });
 
+            const fullName = user.user_metadata?.full_name || localStorage.getItem("registeredName") || (user.email ? user.email.split('@')[0] : "Capella Member");
+            const roomName = reviewTargetStay?.room_title || reviewTargetStay?.name || "Capella Luxury Suite";
+
+            await supabase.from('reviews').insert([{
+                user_id: user.id,
+                name: fullName,
+                room_title: roomName,
+                rating: reviewRating,
+                comment: reviewComment,
+                created_at: new Date().toISOString()
+            }]);
+
             setPoints(newPts);
             setTierInfo(newTierInfo);
             setShowReviewModal(false);
             setReviewComment("");
             showToast(`Terima kasih atas ulasan ${reviewRating} Bintang! (+${bonusPts} Pts Review Bonus)`);
         } catch (err) {
-            showToast("Gagal mengirim ulasan: " + err.message);
+            showToast("Gagal mengirim ulasan: " + (err.message || "Pastikan tabel reviews sudah dibuat di Supabase."));
         }
     };
 
