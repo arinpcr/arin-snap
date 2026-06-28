@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { FaStar, FaChevronDown, FaChevronUp, FaEnvelope, FaShoppingCart, FaQuoteLeft } from "react-icons/fa";
+import { FaStar, FaChevronDown, FaChevronUp, FaEnvelope, FaShoppingCart } from "react-icons/fa";
 import { supabase } from "../lib/supabase";
 
 export default function LandingPage() {
@@ -95,30 +95,6 @@ export default function LandingPage() {
     const toggleFaq = (index) => {
         setOpenFaq(openFaq === index ? null : index);
     };
-
-    const testimonials = [
-        {
-            name: "Amelia Richardson",
-            origin: "London, UK",
-            tier: "Platinum Member",
-            rating: 5,
-            comment: "Dari momen pertama check-in hingga checkout, setiap detail diperhatikan. Tim Capella bahkan mengingat preferensi bantal saya dari kunjungan sebelumnya — benar-benar personalisasi yang luar biasa.",
-        },
-        {
-            name: "Hiroshi Tanaka",
-            origin: "Tokyo, Japan",
-            tier: "Gold Member",
-            rating: 5,
-            comment: "Pengalaman menginap di Capella adalah definisi kemewahan sejati. Fasilitas Boutique add-on yang saya pesan sudah tersedia rapi di kamar sebelum saya tiba. Tidak ada hotel lain yang mampu menandingi standar ini.",
-        },
-        {
-            name: "Sofia Andersen",
-            origin: "Copenhagen, Denmark",
-            tier: "Silver Member",
-            rating: 5,
-            comment: "Capella Circle membership benar-benar memberikan nilai yang sepadan. Complimentary upgrade kamar dan layanan concierge 24 jam membuat liburan keluarga kami menjadi momen tak terlupakan.",
-        },
-    ];
 
     return (
         <div className="min-h-screen bg-white text-gray-900 font-sans scroll-smooth">
@@ -429,49 +405,6 @@ export default function LandingPage() {
                                 </p>
                             )}
                         </div>
-                    </div>
-                </div>
-            </section>
-
-            {/* --- 7. GUEST TESTIMONIALS --- */}
-            <section className="py-24 px-6 md:px-16 bg-white border-t border-gray-100">
-                <div className="max-w-[1400px] mx-auto">
-                    <div className="text-center mb-16">
-                        <span className="text-[10px] text-orange-500 font-bold uppercase tracking-[0.2em] block mb-4">Guest Voices</span>
-                        <h2 className="text-3xl md:text-4xl font-serif text-gray-800 tracking-widest uppercase mb-4">What Our Guests Say</h2>
-                        <p className="text-sm text-gray-500 font-light tracking-wide">Cerita nyata dari tamu setia Capella di seluruh dunia.</p>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                        {testimonials.map((t, index) => (
-                            <div key={index} className="flex flex-col bg-gray-50/50 border border-gray-100 p-8 hover:shadow-xl transition-all hover:border-orange-100">
-                                {/* Quote Icon */}
-                                <FaQuoteLeft className="text-orange-200 text-3xl mb-6" />
-
-                                {/* Stars */}
-                                <div className="flex gap-1 mb-5">
-                                    {[...Array(t.rating)].map((_, i) => (
-                                        <FaStar key={i} className="text-orange-400 text-xs" />
-                                    ))}
-                                </div>
-
-                                {/* Comment */}
-                                <p className="text-sm text-gray-500 font-light leading-relaxed flex-1 mb-8 font-serif italic">
-                                    "{t.comment}"
-                                </p>
-
-                                {/* Divider */}
-                                <div className="border-t border-gray-200 pt-6 flex items-center justify-between">
-                                    <div>
-                                        <p className="font-serif text-gray-900 text-base">{t.name}</p>
-                                        <p className="text-[10px] text-gray-400 tracking-[0.15em] uppercase mt-1">{t.origin}</p>
-                                    </div>
-                                    <span className="text-[9px] text-orange-500 font-bold tracking-[0.15em] uppercase bg-orange-50 px-3 py-1 rounded-sm">
-                                        {t.tier}
-                                    </span>
-                                </div>
-                            </div>
-                        ))}
                     </div>
                 </div>
             </section>
