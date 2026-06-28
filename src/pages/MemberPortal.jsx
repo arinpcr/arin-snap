@@ -4,7 +4,8 @@ import { supabase } from "../lib/supabase";
 import { 
     FaStar, FaSignOutAlt, FaGift, FaRegCalendarCheck, FaCrown, 
     FaArrowRight, FaTicketAlt, FaConciergeBell, FaPlaneArrival, 
-    FaUtensils, FaBed, FaHistory, FaCommentDots, FaTimes, FaPaperPlane 
+    FaUtensils, FaBed, FaHistory, FaCommentDots, FaTimes, FaPaperPlane,
+    FaCheckCircle, FaCalendarAlt, FaUserFriends, FaExclamationCircle, FaAward 
 } from "react-icons/fa";
 import { ImSpinner2 } from "react-icons/im";
 
@@ -17,6 +18,29 @@ export default function MemberPortal() {
     const [points, setPoints] = useState(12500);
     const [tierInfo, setTierInfo] = useState({ tier: "GOLD", discount: 15, nextTier: "PLATINUM", nextReq: 25000 });
     const [pastStays, setPastStays] = useState([]);
+
+    // --- STATE MODAL & POPUP ---
+    const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+    
+    // Booking Popup State
+    const [showBookingModal, setShowBookingModal] = useState(false);
+    const [selectedRoom, setSelectedRoom] = useState(null);
+    const [bookingForm, setBookingForm] = useState({
+        checkIn: new Date(Date.now() + 86400000).toISOString().split('T')[0],
+        checkOut: new Date(Date.now() + 86400000 * 3).toISOString().split('T')[0],
+        guests: "2 Tamu",
+        notes: ""
+    });
+
+    // Rewards Catalog & Claim State
+    const [showRewardsModal, setShowRewardsModal] = useState(false);
+    const [claimedVouchers, setClaimedVouchers] = useState(["Complimentary Spa Aura Retreat"]);
+
+    // Review Modal State
+    const [showReviewModal, setShowReviewModal] = useState(false);
+    const [reviewTargetStay, setReviewTargetStay] = useState(null);
+    const [reviewRating, setReviewRating] = useState(5);
+    const [reviewComment, setReviewComment] = useState("");
 
     // --- STATE UNTUK FITUR INTERAKTIF ---
     const [toastMessage, setToastMessage] = useState("");
@@ -122,7 +146,11 @@ export default function MemberPortal() {
         }
     }, [messages, isChatOpen]);
 
-    const handleLogout = async () => {
+    const handleLogoutConfirm = () => {
+        setShowLogoutConfirm(true);
+    };
+
+    const executeLogout = async () => {
         await supabase.auth.signOut();
         localStorage.clear();
         navigate("/");
@@ -134,21 +162,27 @@ export default function MemberPortal() {
         setTimeout(() => setToastMessage(""), 3000);
     };
 
-    const handleBookRoom = async (room) => {
-        if (!user) return;
+    const openBookingModal = (room) => {
+        setSelectedRoom(room || recommendedRooms[0]);
+        setShowBookingModal(true);
+    };
+
+    const confirmBookingSubmit = async (e) => {
+        e.preventDefault();
+        if (!user || !selectedRoom) return;
         try {
             const newBookingId = `#BKG-${Math.floor(Math.random() * 9000) + 1000}`;
-            const today = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+            const dateStr = `${bookingForm.checkIn} s/d ${bookingForm.checkOut}`;
             const fullName = user.user_metadata?.full_name || localStorage.getItem("registeredName") || "Capella Member";
 
             await supabase.from('booking').insert([{
                 booking_id: newBookingId,
                 name: fullName,
                 status: 'Confirmed',
-                price: room.price,
-                date: today,
+                price: selectedRoom.price,
+                date: dateStr,
                 user_id: user.id,
-                room_title: room.title
+                room_title: `${selectedRoom.title} (${bookingForm.guests})`
             }]);
 
             const addedPoints = 1500;
@@ -163,10 +197,69 @@ export default function MemberPortal() {
 
             setPoints(newTotalPoints);
             setTierInfo(newTierInfo);
-            showToast(`Reservasi ${room.title} berhasil! (+${addedPoints} Pts)`);
+            setShowBookingModal(false);
+            showToast(`Reservasi ${selectedRoom.title} berhasil! (+${addedPoints} Pts)`);
             await fetchMemberData(user);
         } catch (err) {
             showToast("Gagal memesan kamar: " + err.message);
+        }
+    };
+
+    const handleRedeemReward = async (rewardName, cost) => {
+        if (points < cost) {
+            showToast(`Poin tidak cukup! Butuh ${cost.toLocaleString()} PTS.`);
+            return;
+        }
+        const newPts = points - cost;
+        const newTierInfo = calculateTier(newPts);
+        
+        try {
+            await supabase.from('member_points').upsert({
+                user_id: user.id,
+                points: newPts,
+                tier: newTierInfo.tier
+            }, { onConflict: 'user_id' });
+
+            setPoints(newPts);
+            setTierInfo(newTierInfo);
+            setClaimedVouchers(prev => [...prev, rewardName]);
+            showToast(`Berhasil menukarkan ${rewardName}! (-${cost.toLocaleString()} Pts)`);
+        } catch (err) {
+            showToast("Gagal menukarkan poin: " + err.message);
+        }
+    };
+
+    const openReviewModal = (stay) => {
+        setReviewTargetStay(stay);
+        setReviewRating(5);
+        setReviewComment("");
+        setShowReviewModal(true);
+    };
+
+    const handleReviewSubmit = async (e) => {
+        e.preventDefault();
+        if (!reviewComment.trim()) {
+            showToast("Silakan isi komentar ulasan Anda.");
+            return;
+        }
+        const bonusPts = 500;
+        const newPts = points + bonusPts;
+        const newTierInfo = calculateTier(newPts);
+
+        try {
+            await supabase.from('member_points').upsert({
+                user_id: user.id,
+                points: newPts,
+                tier: newTierInfo.tier
+            }, { onConflict: 'user_id' });
+
+            setPoints(newPts);
+            setTierInfo(newTierInfo);
+            setShowReviewModal(false);
+            setReviewComment("");
+            showToast(`Terima kasih atas ulasan ${reviewRating} Bintang! (+${bonusPts} Pts Review Bonus)`);
+        } catch (err) {
+            showToast("Gagal mengirim ulasan: " + err.message);
         }
     };
 
@@ -234,8 +327,8 @@ export default function MemberPortal() {
                         <span className="text-xs font-serif text-gray-900">{fullName}</span>
                     </div>
                     <button 
-                        onClick={handleLogout}
-                        className="bg-gray-900 hover:bg-orange-500 text-white px-6 py-3 text-[11px] font-bold tracking-[0.2em] uppercase transition-all flex items-center gap-2"
+                        onClick={handleLogoutConfirm}
+                        className="bg-gray-900 hover:bg-orange-500 text-white px-6 py-3 text-[11px] font-bold tracking-[0.2em] uppercase transition-all flex items-center gap-2 rounded-xl shadow-sm cursor-pointer"
                     >
                         Sign Out <FaSignOutAlt />
                     </button>
@@ -298,7 +391,7 @@ export default function MemberPortal() {
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                         
                         {/* Points Widget */}
-                        <div className="bg-gray-50 border border-gray-100 p-8 hover:border-orange-200 transition-all">
+                        <div className="bg-white border border-gray-100 p-8 rounded-3xl hover:border-orange-300 hover:shadow-xl transition-all shadow-sm">
                             <div className="flex justify-between items-start mb-6">
                                 <div>
                                     <span className="text-[9px] text-orange-500 font-bold tracking-[0.2em] uppercase block mb-2">Points Balance</span>
@@ -306,39 +399,39 @@ export default function MemberPortal() {
                                 </div>
                                 <FaStar className="text-orange-300 text-3xl" />
                             </div>
-                            <p className="text-xs text-gray-500 font-light mb-8">Tukarkan poin Anda dengan menginap gratis, sesi spa, atau makan malam romantis.</p>
-                            <span onClick={() => showToast("Katalog Penukaran Poin sedang disiapkan...")} className="text-[10px] text-orange-500 font-bold uppercase tracking-[0.2em] cursor-pointer hover:text-gray-900 transition-colors border-b border-orange-500 pb-1 flex items-center gap-2 w-max">
+                            <p className="text-xs text-gray-500 font-light mb-8 leading-relaxed">Tukarkan poin Anda dengan menginap gratis, sesi spa, atau makan malam romantis.</p>
+                            <span onClick={() => setShowRewardsModal(true)} className="text-[10px] text-orange-500 font-bold uppercase tracking-[0.2em] cursor-pointer hover:text-gray-900 transition-colors border-b border-orange-500 pb-1 flex items-center gap-2 w-max">
                                 Rewards Catalog <FaArrowRight />
                             </span>
                         </div>
 
                         {/* Booking Widget */}
-                        <div id="reservations" className="bg-gray-50 border border-gray-100 p-8 hover:border-orange-200 transition-all">
+                        <div id="reservations" className="bg-white border border-gray-100 p-8 rounded-3xl hover:border-orange-300 hover:shadow-xl transition-all shadow-sm">
                             <div className="flex justify-between items-start mb-6">
                                 <div>
                                     <span className="text-[9px] text-orange-500 font-bold tracking-[0.2em] uppercase block mb-2">My Stays</span>
                                     <h3 className="text-xl font-serif text-gray-900">{pastStays.length > 0 ? `${pastStays.length} Reservasi Aktif` : "No Active Booking"}</h3>
                                 </div>
-                                <FaRegCalendarCheck className="text-gray-300 text-3xl" />
+                                <FaRegCalendarCheck className="text-orange-400 text-3xl" />
                             </div>
-                            <p className="text-xs text-gray-500 font-light mb-8">Jadwalkan kunjungan Anda berikutnya dan nikmati keistimewaan harga khusus member.</p>
-                            <span onClick={() => showToast("Mengarahkan ke halaman Booking...")} className="text-[10px] text-orange-500 font-bold uppercase tracking-[0.2em] cursor-pointer hover:text-gray-900 transition-colors border-b border-orange-500 pb-1 flex items-center gap-2 w-max">
+                            <p className="text-xs text-gray-500 font-light mb-8 leading-relaxed">Jadwalkan kunjungan Anda berikutnya dan nikmati keistimewaan harga khusus member.</p>
+                            <span onClick={() => openBookingModal(recommendedRooms[0])} className="text-[10px] text-orange-500 font-bold uppercase tracking-[0.2em] cursor-pointer hover:text-gray-900 transition-colors border-b border-orange-500 pb-1 flex items-center gap-2 w-max">
                                 Book A Room <FaArrowRight />
                             </span>
                         </div>
 
                         {/* Offers Widget */}
-                        <div id="rewards" className="bg-gray-900 text-white border border-gray-800 p-8 relative overflow-hidden">
+                        <div id="rewards" className="bg-gray-900 text-white border border-gray-800 p-8 rounded-3xl relative overflow-hidden hover:shadow-2xl transition-all shadow-md">
                             <div className="absolute -right-6 -top-6 text-gray-800 opacity-50">
                                 <FaGift className="text-9xl" />
                             </div>
                             <div className="relative z-10 flex flex-col h-full justify-between">
                                 <div>
-                                    <span className="text-[9px] text-gray-900 font-bold tracking-[0.2em] uppercase bg-orange-500 px-2 py-1 rounded-sm">Special Offer</span>
+                                    <span className="text-[9px] text-gray-900 font-bold tracking-[0.2em] uppercase bg-orange-500 px-3 py-1 rounded-full">Special Offer</span>
                                     <h3 className="text-xl font-serif text-white mt-4">Complimentary Spa</h3>
-                                    <p className="text-xs text-gray-400 font-light mt-2 max-w-[200px]">Tersedia 1 voucher spa Aura Retreat eksklusif untuk Anda.</p>
+                                    <p className="text-xs text-gray-400 font-light mt-2 max-w-[200px] leading-relaxed">Tersedia 1 voucher spa Aura Retreat eksklusif untuk Anda.</p>
                                 </div>
-                                <span onClick={() => showToast("Selamat! Voucher Spa telah ditambahkan ke akun Anda.")} className="mt-8 text-[10px] text-orange-500 font-bold uppercase tracking-[0.2em] cursor-pointer hover:text-white transition-colors border-b border-orange-500 pb-1 flex items-center gap-2 w-max">
+                                <span onClick={() => setShowRewardsModal(true)} className="mt-8 text-[10px] text-orange-500 font-bold uppercase tracking-[0.2em] cursor-pointer hover:text-white transition-colors border-b border-orange-500 pb-1 flex items-center gap-2 w-max">
                                     Claim Voucher <FaTicketAlt />
                                 </span>
                             </div>
@@ -391,20 +484,20 @@ export default function MemberPortal() {
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                         {recommendedRooms.map((room) => (
-                            <div key={room.id} className="group cursor-pointer bg-white border border-gray-100 p-6 hover:shadow-xl transition-all">
-                                <div className="overflow-hidden mb-6 relative">
+                            <div key={room.id} className="group cursor-pointer bg-white border border-gray-100 p-6 rounded-3xl hover:shadow-2xl hover:border-orange-300 transition-all shadow-sm">
+                                <div className="overflow-hidden mb-6 relative rounded-2xl">
                                     <img src={room.image} className="w-full h-[250px] object-cover group-hover:scale-105 transition-transform duration-1000" alt={room.title} />
-                                    <div className="absolute top-4 right-4 bg-gray-900 text-white text-[9px] font-bold tracking-[0.2em] uppercase px-3 py-1">{room.tag}</div>
+                                    <div className="absolute top-4 right-4 bg-gray-900 text-white text-[9px] font-bold tracking-[0.2em] uppercase px-3 py-1 rounded-full shadow-md">{room.tag}</div>
                                 </div>
                                 <h3 className="text-xl font-serif text-gray-900 mb-2">{room.title}</h3>
                                 <p className="text-[10px] text-gray-400 font-bold tracking-[0.2em] uppercase mb-6">{room.location}</p>
                                 
-                                <div className="border-t border-gray-200 pt-4 flex justify-between items-end">
+                                <div className="border-t border-gray-100 pt-4 flex justify-between items-end">
                                     <div>
                                         <p className="text-[10px] text-gray-400 tracking-[0.1em] uppercase">Member Rate</p>
-                                        <p className="text-lg font-serif text-orange-600 mt-1">{room.price}</p>
+                                        <p className="text-lg font-serif font-bold text-orange-600 mt-1">{room.price}</p>
                                     </div>
-                                    <span onClick={() => handleBookRoom(room)} className="text-[10px] text-gray-900 font-bold uppercase tracking-[0.2em] group-hover:text-orange-500 transition-colors border-b border-gray-900 group-hover:border-orange-500 pb-1 cursor-pointer">
+                                    <span onClick={() => openBookingModal(room)} className="text-[10px] bg-gray-900 text-white font-bold uppercase tracking-[0.2em] px-5 py-2.5 rounded-xl group-hover:bg-orange-500 transition-all cursor-pointer shadow-sm">
                                         Book Now
                                     </span>
                                 </div>
@@ -412,33 +505,50 @@ export default function MemberPortal() {
                         ))}
                     </div>
                     
-                    {/* RIWAYAT MENGINAP (Past Stays) */}
+                    {/* RIWAYAT MENGINAP & STATUS RESERVASI (Past Stays) */}
                     <div className="mt-16">
-                        <h3 className="text-xl font-serif text-gray-800 tracking-wider uppercase mb-6 text-center md:text-left">My Booking History</h3>
+                        <h3 className="text-xl font-serif text-gray-800 tracking-wider uppercase mb-6 text-center md:text-left flex items-center gap-3">
+                            <FaRegCalendarCheck className="text-orange-500" /> My Reservation Status & History
+                        </h3>
                         {pastStays.length > 0 ? (
-                            pastStays.map((stay, idx) => (
-                                <div key={idx} className="mb-4 bg-white border border-gray-100 p-6 md:p-8 flex flex-col md:flex-row justify-between items-center gap-6 shadow-sm hover:border-orange-200 transition-all">
-                                    <div className="flex items-center gap-6">
-                                        <div className="w-12 h-12 bg-orange-50 rounded-full flex items-center justify-center shrink-0">
-                                            <FaHistory className="text-orange-500 text-xl" />
+                            pastStays.map((stay, idx) => {
+                                const st = (stay.status || 'Confirmed').toLowerCase();
+                                const badgeStyle = st === 'completed' ? 'bg-blue-100 text-blue-700 border-blue-300' :
+                                                   st === 'pending' ? 'bg-amber-100 text-amber-700 border-amber-300' :
+                                                   st === 'cancelled' ? 'bg-rose-100 text-rose-700 border-rose-300' :
+                                                   'bg-emerald-100 text-emerald-700 border-emerald-300';
+                                return (
+                                    <div key={idx} className="mb-4 bg-white border border-gray-100 p-6 md:p-8 rounded-3xl flex flex-col md:flex-row justify-between items-center gap-6 shadow-sm hover:shadow-md hover:border-orange-200 transition-all">
+                                        <div className="flex items-center gap-6">
+                                            <div className="w-14 h-14 bg-orange-50 rounded-2xl flex items-center justify-center shrink-0 border border-orange-100">
+                                                <FaHistory className="text-orange-500 text-xl" />
+                                            </div>
+                                            <div>
+                                                <div className="flex items-center gap-2 mb-2">
+                                                    <span className="text-[9px] font-bold tracking-[0.2em] uppercase bg-gray-100 text-gray-600 px-2.5 py-1 rounded-md border border-gray-200">{stay.booking_id || `#BKG-${idx+100}`}</span>
+                                                    <span className={`text-[9px] font-bold tracking-[0.2em] uppercase px-3 py-1 rounded-full border ${badgeStyle}`}>
+                                                        ● {stay.status || 'Confirmed'}
+                                                    </span>
+                                                </div>
+                                                <h4 className="font-serif text-gray-900 text-lg">{stay.room_title || stay.name || "Capella Luxury Suite"}</h4>
+                                                <p className="text-xs text-gray-500 font-light mt-1 flex items-center gap-4">
+                                                    <span>Total: <strong className="text-gray-800 font-medium">{stay.price || 'Rp 3.500.000'}</strong></span>
+                                                    <span>•</span>
+                                                    <span>Jadwal: <strong className="text-gray-800 font-medium">{stay.date || 'Besok'}</strong></span>
+                                                </p>
+                                            </div>
                                         </div>
-                                        <div>
-                                            <span className="text-[9px] font-bold tracking-[0.2em] uppercase bg-gray-100 text-gray-600 px-2 py-0.5 rounded mr-2">{stay.booking_id || `#BKG-${idx+100}`}</span>
-                                            <span className="text-[9px] font-bold tracking-[0.2em] uppercase bg-orange-100 text-orange-600 px-2 py-0.5 rounded">{stay.status || 'Confirmed'}</span>
-                                            <h4 className="font-serif text-gray-900 text-lg mt-2">{stay.room_title || stay.name || "Capella Luxury Suite"}</h4>
-                                            <p className="text-xs text-gray-500 font-light mt-1">Total: <strong className="text-gray-800">{stay.price || 'Rp 3.500.000'}</strong> | Tanggal: {stay.date || 'Baru saja'}</p>
+                                        <div className="flex gap-3 w-full md:w-auto">
+                                            <button onClick={() => openReviewModal(stay)} className="flex-1 md:flex-none text-[10px] text-gray-600 font-bold uppercase tracking-[0.15em] border border-gray-200 rounded-xl px-5 py-3 hover:bg-gray-50 hover:text-gray-900 transition-colors cursor-pointer">
+                                                Leave a Review ★
+                                            </button>
+                                            <button onClick={() => openBookingModal({ title: stay.room_title || "Capella Luxury Suite", price: stay.price || "Rp 3.500.000" })} className="flex-1 md:flex-none text-[10px] bg-gray-900 text-white font-bold uppercase tracking-[0.15em] rounded-xl px-5 py-3 hover:bg-orange-500 transition-all cursor-pointer shadow-sm">
+                                                Reschedule / Book
+                                            </button>
                                         </div>
                                     </div>
-                                    <div className="flex gap-4 w-full md:w-auto">
-                                        <button onClick={() => showToast("Form ulasan akan segera dibuka.")} className="flex-1 md:flex-none text-[10px] text-gray-500 font-bold uppercase tracking-[0.2em] border border-gray-200 px-6 py-3 hover:bg-gray-50 transition-colors cursor-pointer">
-                                            Leave a Review
-                                        </button>
-                                        <button onClick={() => handleBookRoom({ title: stay.room_title || "Capella Luxury Suite", price: stay.price || "Rp 3.500.000" })} className="flex-1 md:flex-none text-[10px] bg-gray-900 text-white font-bold uppercase tracking-[0.2em] px-6 py-3 hover:bg-orange-500 transition-colors cursor-pointer">
-                                            Book Again
-                                        </button>
-                                    </div>
-                                </div>
-                            ))
+                                );
+                            })
                         ) : (
                             <div className="bg-white border border-gray-100 p-8 text-center text-gray-500 text-xs font-light">
                                 Belum ada riwayat reservasi. Klik "Book Now" pada daftar kamar rekomendasi di atas untuk melakukan reservasi pertama Anda!
@@ -520,11 +630,264 @@ export default function MemberPortal() {
                 {/* Floating Action Button */}
                 <button 
                     onClick={() => setIsChatOpen(!isChatOpen)}
-                    className="w-14 h-14 bg-gray-900 hover:bg-orange-500 text-white shadow-[0_8px_20px_rgba(0,0,0,0.2)] rounded-full flex items-center justify-center transition-all hover:-translate-y-1"
+                    className="w-14 h-14 bg-gray-900 hover:bg-orange-500 text-white shadow-[0_8px_20px_rgba(0,0,0,0.2)] rounded-full flex items-center justify-center transition-all hover:-translate-y-1 cursor-pointer"
                 >
                     {isChatOpen ? <FaTimes className="text-xl" /> : <FaCommentDots className="text-xl" />}
                 </button>
             </div>
+
+            {/* --- LOGOUT CONFIRMATION MODAL --- */}
+            {showLogoutConfirm && (
+                <div className="fixed inset-0 z-[200] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 animate-fadeIn">
+                    <div className="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl border border-gray-100 text-center transform transition-all scale-100">
+                        <div className="w-16 h-16 bg-rose-50 rounded-full flex items-center justify-center mx-auto mb-6 text-rose-500 text-2xl border border-rose-100">
+                            <FaExclamationCircle />
+                        </div>
+                        <h3 className="text-2xl font-serif text-gray-900 mb-3">Konfirmasi Keluar</h3>
+                        <p className="text-xs text-gray-500 font-light leading-relaxed mb-8">
+                            Apakah Anda yakin ingin keluar dari sesi portal VIP Member Capella Anda saat ini?
+                        </p>
+                        <div className="flex gap-4">
+                            <button 
+                                onClick={() => setShowLogoutConfirm(false)}
+                                className="flex-1 py-3 px-6 border border-gray-200 rounded-xl text-xs font-bold uppercase tracking-[0.15em] text-gray-600 hover:bg-gray-50 transition-colors cursor-pointer"
+                            >
+                                Batal
+                            </button>
+                            <button 
+                                onClick={executeLogout}
+                                className="flex-1 py-3 px-6 bg-rose-600 hover:bg-rose-700 rounded-xl text-xs font-bold uppercase tracking-[0.15em] text-white transition-colors cursor-pointer shadow-lg shadow-rose-500/30"
+                            >
+                                Ya, Keluar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* --- BOOKING RESERVATION POPUP MODAL --- */}
+            {showBookingModal && selectedRoom && (
+                <div className="fixed inset-0 z-[200] bg-black/70 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto animate-fadeIn">
+                    <div className="bg-white rounded-3xl p-8 max-w-xl w-full shadow-2xl border border-gray-100 my-8">
+                        <div className="flex justify-between items-center border-b border-gray-100 pb-5 mb-6">
+                            <div>
+                                <span className="text-[10px] text-orange-500 font-bold uppercase tracking-[0.2em]">VIP Reservation</span>
+                                <h3 className="text-2xl font-serif text-gray-900 mt-1">{selectedRoom.title}</h3>
+                            </div>
+                            <button onClick={() => setShowBookingModal(false)} className="text-gray-400 hover:text-gray-900 text-xl cursor-pointer">
+                                <FaTimes />
+                            </button>
+                        </div>
+
+                        <form onSubmit={confirmBookingSubmit} className="space-y-6">
+                            <div className="bg-orange-50/50 border border-orange-100 p-4 rounded-2xl flex justify-between items-center">
+                                <span className="text-xs text-gray-600 font-light">Tarif Member per malam:</span>
+                                <span className="text-lg font-serif font-bold text-orange-600">{selectedRoom.price}</span>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label className="text-[10px] text-gray-400 font-bold tracking-[0.15em] uppercase block mb-2 flex items-center gap-2">
+                                        <FaCalendarAlt className="text-orange-500" /> Check-In Date
+                                    </label>
+                                    <input 
+                                        type="date" 
+                                        value={bookingForm.checkIn} 
+                                        onChange={(e) => setBookingForm({...bookingForm, checkIn: e.target.value})}
+                                        required 
+                                        className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-xs text-gray-800 outline-none focus:border-orange-500"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="text-[10px] text-gray-400 font-bold tracking-[0.15em] uppercase block mb-2 flex items-center gap-2">
+                                        <FaCalendarAlt className="text-orange-500" /> Check-Out Date
+                                    </label>
+                                    <input 
+                                        type="date" 
+                                        value={bookingForm.checkOut} 
+                                        onChange={(e) => setBookingForm({...bookingForm, checkOut: e.target.value})}
+                                        required 
+                                        className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-xs text-gray-800 outline-none focus:border-orange-500"
+                                    />
+                                </div>
+                            </div>
+
+                            <div>
+                                <label className="text-[10px] text-gray-400 font-bold tracking-[0.15em] uppercase block mb-2 flex items-center gap-2">
+                                    <FaUserFriends className="text-orange-500" /> Jumlah Tamu
+                                </label>
+                                <select 
+                                    value={bookingForm.guests} 
+                                    onChange={(e) => setBookingForm({...bookingForm, guests: e.target.value})}
+                                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-xs text-gray-800 outline-none focus:border-orange-500"
+                                >
+                                    <option value="1 Tamu">1 Tamu (Single/Solo)</option>
+                                    <option value="2 Tamu">2 Tamu (Couple Suite)</option>
+                                    <option value="3 Tamu">3 Tamu (Family Small)</option>
+                                    <option value="4 Tamu">4 Tamu (Family Grand)</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label className="text-[10px] text-gray-400 font-bold tracking-[0.15em] uppercase block mb-2">
+                                    Catatan Khusus (Pillow Menu / Transfer Bandara)
+                                </label>
+                                <textarea 
+                                    rows="3" 
+                                    value={bookingForm.notes}
+                                    onChange={(e) => setBookingForm({...bookingForm, notes: e.target.value})}
+                                    placeholder="Contoh: Mohon disiapkan kamar lantai tinggi non-smoking."
+                                    className="w-full bg-gray-50 border border-gray-200 rounded-xl p-4 text-xs text-gray-800 outline-none focus:border-orange-500"
+                                ></textarea>
+                            </div>
+
+                            <div className="bg-gray-900 text-white p-5 rounded-2xl flex justify-between items-center">
+                                <div>
+                                    <p className="text-[10px] text-gray-400 uppercase tracking-widest">Bonus Poin Loyalitas</p>
+                                    <p className="text-sm font-serif text-orange-400 mt-0.5">+1,500 PTS <span className="text-xs text-gray-300 font-sans">ditambahkan ke akun</span></p>
+                                </div>
+                                <button type="submit" className="bg-orange-500 hover:bg-orange-600 text-white font-bold text-xs uppercase tracking-[0.15em] px-8 py-3.5 rounded-xl transition-all shadow-lg shadow-orange-500/30 cursor-pointer">
+                                    Konfirmasi Booking
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+
+            {/* --- REWARDS CATALOG POPUP MODAL --- */}
+            {showRewardsModal && (
+                <div className="fixed inset-0 z-[200] bg-black/70 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto animate-fadeIn">
+                    <div className="bg-white rounded-3xl p-8 max-w-3xl w-full shadow-2xl border border-gray-100 my-8">
+                        <div className="flex justify-between items-center border-b border-gray-100 pb-5 mb-6">
+                            <div>
+                                <span className="text-[10px] text-orange-500 font-bold uppercase tracking-[0.2em]">VIP Privileges</span>
+                                <h3 className="text-2xl font-serif text-gray-900 mt-1">Katalog Penukaran Poin Reward</h3>
+                            </div>
+                            <div className="flex items-center gap-4">
+                                <span className="bg-orange-50 text-orange-600 border border-orange-200 px-4 py-1.5 rounded-full text-xs font-bold">
+                                    Saldo: {points.toLocaleString()} PTS
+                                </span>
+                                <button onClick={() => setShowRewardsModal(false)} className="text-gray-400 hover:text-gray-900 text-xl cursor-pointer">
+                                    <FaTimes />
+                                </button>
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                            {[
+                                { name: "Voucher Spa Aura Retreat", cost: 2500, desc: "Sesi pijat aromaterapi relaksasi 60 menit untuk 2 orang." },
+                                { name: "Makan Malam Romantis VIP", cost: 5000, desc: "Sesi private dining dengan menu 5-course chef curated." },
+                                { name: "Upgrade Kamar ke Penthouse", cost: 10000, desc: "Upgrade gratis ke kamar kategori tertinggi saat Check-In." },
+                                { name: "Menginap Gratis 1 Malam", cost: 15000, desc: "Voucher menginap 1 malam gratis di seluruh properti Capella." }
+                            ].map((item, idx) => {
+                                const isClaimed = claimedVouchers.includes(item.name);
+                                return (
+                                    <div key={idx} className="border border-gray-200/80 rounded-2xl p-6 flex flex-col justify-between hover:border-orange-300 transition-all bg-gray-50/50">
+                                        <div>
+                                            <div className="flex justify-between items-start mb-3">
+                                                <h4 className="font-serif text-lg text-gray-900">{item.name}</h4>
+                                                <FaAward className="text-orange-400 text-xl shrink-0" />
+                                            </div>
+                                            <p className="text-xs text-gray-500 font-light mb-6 leading-relaxed">{item.desc}</p>
+                                        </div>
+                                        <div className="flex justify-between items-center pt-4 border-t border-gray-200/60">
+                                            <span className="text-sm font-serif font-bold text-orange-600">{item.cost.toLocaleString()} PTS</span>
+                                            <button 
+                                                onClick={() => !isClaimed && handleRedeemReward(item.name, item.cost)}
+                                                disabled={isClaimed}
+                                                className={`text-[10px] font-bold uppercase tracking-[0.15em] px-5 py-2.5 rounded-xl transition-all ${
+                                                    isClaimed 
+                                                    ? 'bg-emerald-100 text-emerald-700 cursor-not-allowed' 
+                                                    : 'bg-gray-900 hover:bg-orange-500 text-white cursor-pointer shadow-md'
+                                                }`}
+                                            >
+                                                {isClaimed ? "Telah Diklaim ✓" : "Tukarkan"}
+                                            </button>
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+
+                        {claimedVouchers.length > 0 && (
+                            <div className="bg-orange-50/50 border border-orange-200/80 p-5 rounded-2xl">
+                                <h4 className="text-xs font-bold uppercase tracking-widest text-orange-800 mb-3 flex items-center gap-2">
+                                    <FaTicketAlt /> Voucher Anda yang Tersedia:
+                                </h4>
+                                <div className="flex flex-wrap gap-2">
+                                    {claimedVouchers.map((v, i) => (
+                                        <span key={i} className="bg-white text-gray-800 border border-orange-200 px-3 py-1.5 rounded-lg text-xs font-medium shadow-2xs">
+                                            🎟️ {v}
+                                        </span>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            )}
+
+            {/* --- LEAVE A REVIEW POPUP MODAL --- */}
+            {showReviewModal && reviewTargetStay && (
+                <div className="fixed inset-0 z-[200] bg-black/70 backdrop-blur-md flex items-center justify-center p-4 animate-fadeIn">
+                    <div className="bg-white rounded-3xl p-8 max-w-lg w-full shadow-2xl border border-gray-100">
+                        <div className="flex justify-between items-center border-b border-gray-100 pb-4 mb-6">
+                            <div>
+                                <span className="text-[10px] text-orange-500 font-bold uppercase tracking-[0.2em]">Guest Experience</span>
+                                <h3 className="text-xl font-serif text-gray-900 mt-1">Ulasan Masa Inap</h3>
+                            </div>
+                            <button onClick={() => setShowReviewModal(false)} className="text-gray-400 hover:text-gray-900 text-xl cursor-pointer">
+                                <FaTimes />
+                            </button>
+                        </div>
+
+                        <form onSubmit={handleReviewSubmit} className="space-y-6">
+                            <div className="bg-gray-50 p-4 rounded-2xl text-center">
+                                <p className="text-xs text-gray-500 mb-1">Kamar yang diulas:</p>
+                                <h4 className="font-serif font-bold text-gray-900">{reviewTargetStay.room_title || reviewTargetStay.name || "Capella Luxury Suite"}</h4>
+                            </div>
+
+                            <div className="text-center">
+                                <label className="text-xs font-bold uppercase tracking-wider text-gray-600 block mb-3">Berikan Penilaian Bintang:</label>
+                                <div className="flex justify-center gap-3 text-2xl">
+                                    {[1, 2, 3, 4, 5].map((star) => (
+                                        <button 
+                                            type="button"
+                                            key={star} 
+                                            onClick={() => setReviewRating(star)} 
+                                            className={`transition-transform hover:scale-125 cursor-pointer ${star <= reviewRating ? 'text-orange-500' : 'text-gray-200'}`}
+                                        >
+                                            ★
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+
+                            <div>
+                                <label className="text-xs font-bold uppercase tracking-wider text-gray-600 block mb-2">Komentar Ulasan Anda:</label>
+                                <textarea 
+                                    rows="4" 
+                                    value={reviewComment}
+                                    onChange={(e) => setReviewComment(e.target.value)}
+                                    placeholder="Ceritakan pengalaman pelayanan Butler, kenyamanan kamar, atau suasana resor..."
+                                    required
+                                    className="w-full bg-gray-50 border border-gray-200 rounded-2xl p-4 text-xs text-gray-800 outline-none focus:border-orange-500"
+                                ></textarea>
+                            </div>
+
+                            <div className="bg-orange-50 text-orange-800 p-4 rounded-xl text-xs flex items-center justify-between">
+                                <span>🎁 Reward Ulasan:</span>
+                                <strong className="font-bold">+500 Poin Loyalitas</strong>
+                            </div>
+
+                            <button type="submit" className="w-full bg-gray-900 hover:bg-orange-500 text-white font-bold text-xs uppercase tracking-[0.15em] py-4 rounded-xl transition-all shadow-lg cursor-pointer">
+                                Kirim Ulasan
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            )}
 
         </div>
     );

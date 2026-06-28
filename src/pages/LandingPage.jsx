@@ -36,6 +36,7 @@ export default function LandingPage() {
     }, []);
 
     const handleLogout = async () => {
+        if (!window.confirm("Apakah Anda yakin ingin keluar dari akun Anda?")) return;
         await supabase.auth.signOut();
         localStorage.removeItem("isLoggedIn");
         localStorage.removeItem("userRole");
