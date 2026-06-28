@@ -112,7 +112,7 @@ export default function MemberPortal() {
         }
 
         try {
-            const fullName = currentUser.user_metadata?.full_name || localStorage.getItem("registeredName") || "";
+            const fullName = currentUser.user_metadata?.full_name || localStorage.getItem("registeredName") || (currentUser.email ? currentUser.email.split('@')[0] : "");
             const { data: bookings } = await supabase
                 .from('booking')
                 .select('*')
@@ -173,32 +173,20 @@ export default function MemberPortal() {
         try {
             const newBookingId = `#BKG-${Math.floor(Math.random() * 9000) + 1000}`;
             const dateStr = `${bookingForm.checkIn} s/d ${bookingForm.checkOut}`;
-            const fullName = user.user_metadata?.full_name || localStorage.getItem("registeredName") || "Capella Member";
+            const fullName = user.user_metadata?.full_name || localStorage.getItem("registeredName") || (user.email ? user.email.split('@')[0] : "Capella Member");
 
             await supabase.from('booking').insert([{
                 booking_id: newBookingId,
                 name: fullName,
-                status: 'Confirmed',
+                status: 'Pending',
                 price: selectedRoom.price,
                 date: dateStr,
                 user_id: user.id,
                 room_title: `${selectedRoom.title} (${bookingForm.guests})`
             }]);
 
-            const addedPoints = 1500;
-            const newTotalPoints = points + addedPoints;
-            const newTierInfo = calculateTier(newTotalPoints);
-
-            await supabase.from('member_points').upsert({
-                user_id: user.id,
-                points: newTotalPoints,
-                tier: newTierInfo.tier
-            }, { onConflict: 'user_id' });
-
-            setPoints(newTotalPoints);
-            setTierInfo(newTierInfo);
             setShowBookingModal(false);
-            showToast(`Reservasi ${selectedRoom.title} berhasil! (+${addedPoints} Pts)`);
+            showToast(`Reservasi ${selectedRoom.title} berhasil diajukan! Status: PENDING (Menunggu ACC Admin)`);
             await fetchMemberData(user);
         } catch (err) {
             showToast("Gagal memesan kamar: " + err.message);
@@ -292,7 +280,7 @@ export default function MemberPortal() {
         );
     }
 
-    const fullName = user?.user_metadata?.full_name || localStorage.getItem("registeredName") || "Capella Member";
+    const fullName = user?.user_metadata?.full_name || localStorage.getItem("registeredName") || (user?.email ? user.email.split('@')[0] : "Capella Member");
     const { tier: loyaltyTier, discount: discountRate, nextTier, nextReq } = tierInfo;
     const progressPercentage = nextTier === "MAX" ? 100 : Math.min(100, Math.round((points / nextReq) * 100));
     const pointsNeeded = nextTier === "MAX" ? 0 : Math.max(0, nextReq - points);
@@ -349,9 +337,12 @@ export default function MemberPortal() {
                         <FaCrown className="text-orange-400 text-xs" />
                         <span className="text-[10px] text-white font-bold tracking-[0.2em] uppercase">{loyaltyTier} MEMBER ({discountRate}% OFF)</span>
                     </div>
-                    <h2 className="text-3xl md:text-5xl font-serif tracking-[0.2em] uppercase mb-4 drop-shadow-md">
-                        Your Journey Awaits
+                    <h2 className="text-3xl md:text-5xl font-serif tracking-[0.15em] uppercase mb-2 drop-shadow-md text-white">
+                        Welcome, {fullName}
                     </h2>
+                    <h3 className="text-xl md:text-2xl font-serif tracking-[0.25em] text-orange-400 uppercase mb-4 drop-shadow-md">
+                        Your Journey Awaits
+                    </h3>
                     <p className="text-sm md:text-base font-light tracking-wide text-gray-300 drop-shadow-md max-w-xl mx-auto">
                         Akses eksklusif ke reservasi Anda, keuntungan khusus member, dan layanan personalisasi dari Capella.
                     </p>

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import PageHeader from "../components/PageHeader";
 import { supabase } from "../lib/supabase";
-import { FaTrash } from "react-icons/fa";
+import { FaTrash, FaCheck, FaTimes } from "react-icons/fa";
 
 export default function Bookings() {
     const [showForm, setShowForm] = useState(false);
@@ -92,6 +92,62 @@ export default function Bookings() {
         }
     };
 
+    // 4. ACC BOOKING (Setujui & Tambah Poin)
+    const handleAcceptBooking = async (booking) => {
+        if (!window.confirm(`Setujui (ACC) reservasi atas nama ${booking.name}?`)) return;
+        try {
+            const { error: bookingErr } = await supabase
+                .from('booking')
+                .update({ status: 'Confirmed' })
+                .eq('id', booking.id);
+            if (bookingErr) throw bookingErr;
+
+            if (booking.user_id) {
+                const { data: ptsData } = await supabase
+                    .from('member_points')
+                    .select('*')
+                    .eq('user_id', booking.user_id)
+                    .single();
+
+                const currentPts = ptsData ? ptsData.points : 12500;
+                const newPts = currentPts + 1500;
+                const calculateTier = (pts) => {
+                    if (pts >= 25000) return "PLATINUM";
+                    if (pts >= 10000) return "GOLD";
+                    if (pts >= 2500) return "SILVER";
+                    return "BRONZE";
+                };
+
+                await supabase.from('member_points').upsert({
+                    user_id: booking.user_id,
+                    points: newPts,
+                    tier: calculateTier(newPts)
+                }, { onConflict: 'user_id' });
+            }
+
+            alert(`Reservasi berhasil di-ACC! (+1,500 Pts ditambahkan ke akun member)`);
+            fetchBookings();
+        } catch (error) {
+            alert("Error ACC booking: " + error.message);
+        }
+    };
+
+    // 5. REJECT BOOKING (Tolak)
+    const handleRejectBooking = async (booking) => {
+        if (!window.confirm(`Tolak reservasi atas nama ${booking.name}?`)) return;
+        try {
+            const { error } = await supabase
+                .from('booking')
+                .update({ status: 'Rejected' })
+                .eq('id', booking.id);
+            if (error) throw error;
+            alert("Reservasi telah ditolak.");
+            fetchBookings();
+        } catch (error) {
+            alert("Error tolak booking: " + error.message);
+        }
+    };
+
     return (
         <div id="dashboard-container" className="p-2 font-poppins">
             <PageHeader title="Bookings" breadcrumb="Booking Management">
@@ -129,22 +185,37 @@ export default function Bookings() {
                                 bookingsData.map((booking) => (
                                     <tr key={booking.id} className="hover:bg-orange-50/30 transition-colors group">
                                         <td className="p-6 font-bold text-gray-800">{booking.booking_id}</td>
-                                        <td className="p-6 font-extrabold text-gray-700">{booking.name}</td>
+                                        <td className="p-6">
+                                            <div className="font-extrabold text-gray-800">{booking.name}</div>
+                                            {booking.room_title && <div className="text-xs font-semibold text-orange-500 mt-0.5">{booking.room_title}</div>}
+                                        </td>
                                         <td className="p-6 text-center">
                                             <div className={`mx-auto w-fit px-5 py-1.5 rounded-full text-[10px] font-black uppercase flex items-center gap-2 ${
-                                                booking.status === 'Completed' ? 'bg-emerald-100 text-emerald-600' : 
+                                                booking.status === 'Completed' || booking.status === 'Confirmed' ? 'bg-emerald-100 text-emerald-600' : 
                                                 booking.status === 'Pending' ? 'bg-amber-100 text-amber-600' : 'bg-rose-100 text-rose-600'
                                             }`}>
-                                                <div className={`w-1.5 h-1.5 rounded-full ${booking.status === 'Completed' ? 'bg-emerald-600' : booking.status === 'Pending' ? 'bg-amber-600' : 'bg-rose-600'}`} />
+                                                <div className={`w-1.5 h-1.5 rounded-full ${booking.status === 'Completed' || booking.status === 'Confirmed' ? 'bg-emerald-600' : booking.status === 'Pending' ? 'bg-amber-600' : 'bg-rose-600'}`} />
                                                 {booking.status}
                                             </div>
                                         </td>
                                         <td className="p-6 font-black text-gray-800">{booking.price}</td>
                                         <td className="p-6 text-xs font-bold text-gray-400">{booking.date}</td>
                                         <td className="p-6 text-center">
-                                            <button onClick={() => handleDelete(booking.id)} className="text-rose-400 hover:text-rose-600 p-2 bg-rose-50 rounded-lg transition-colors">
-                                                <FaTrash />
-                                            </button>
+                                            <div className="flex items-center justify-center gap-2">
+                                                {booking.status === 'Pending' && (
+                                                    <>
+                                                        <button onClick={() => handleAcceptBooking(booking)} title="Setujui (ACC)" className="bg-emerald-500 hover:bg-emerald-600 text-white font-bold px-3 py-2 rounded-xl text-xs transition-all shadow-sm flex items-center gap-1 cursor-pointer">
+                                                            <FaCheck /> ACC
+                                                        </button>
+                                                        <button onClick={() => handleRejectBooking(booking)} title="Tolak (Reject)" className="bg-rose-500 hover:bg-rose-600 text-white font-bold px-3 py-2 rounded-xl text-xs transition-all shadow-sm flex items-center gap-1 cursor-pointer">
+                                                            <FaTimes /> Tolak
+                                                        </button>
+                                                    </>
+                                                )}
+                                                <button onClick={() => handleDelete(booking.id)} title="Hapus" className="text-rose-400 hover:text-rose-600 p-2.5 bg-rose-50 rounded-xl transition-colors cursor-pointer">
+                                                    <FaTrash />
+                                                </button>
+                                            </div>
                                         </td>
                                     </tr>
                                 ))
