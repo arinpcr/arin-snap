@@ -302,6 +302,7 @@ export default function MemberPortal() {
                     <span className="text-gray-900">Portal Member</span>
                     <a href="#concierge" className="hover:text-orange-500 transition-colors">Concierge</a>
                     <a href="#reservations" className="hover:text-orange-500 transition-colors">Reservations</a>
+                    <span onClick={() => navigate("/rewards")} className="hover:text-orange-500 transition-colors cursor-pointer">Rewards</span>
                 </div>
 
                 <div className="flex flex-col items-center absolute left-1/2 -translate-x-1/2 cursor-pointer" onClick={() => navigate("/")}>
@@ -391,7 +392,7 @@ export default function MemberPortal() {
                                 <FaStar className="text-orange-300 text-3xl" />
                             </div>
                             <p className="text-xs text-gray-500 font-light mb-8 leading-relaxed">Tukarkan poin Anda dengan menginap gratis, sesi spa, atau makan malam romantis.</p>
-                            <span onClick={() => setShowRewardsModal(true)} className="text-[10px] text-orange-500 font-bold uppercase tracking-[0.2em] cursor-pointer hover:text-gray-900 transition-colors border-b border-orange-500 pb-1 flex items-center gap-2 w-max">
+                            <span onClick={() => navigate("/rewards")} className="text-[10px] text-orange-500 font-bold uppercase tracking-[0.2em] cursor-pointer hover:text-gray-900 transition-colors border-b border-orange-500 pb-1 flex items-center gap-2 w-max">
                                 Rewards Catalog <FaArrowRight />
                             </span>
                         </div>
@@ -422,7 +423,7 @@ export default function MemberPortal() {
                                     <h3 className="text-xl font-serif text-white mt-4">Complimentary Spa</h3>
                                     <p className="text-xs text-gray-400 font-light mt-2 max-w-[200px] leading-relaxed">Tersedia 1 voucher spa Aura Retreat eksklusif untuk Anda.</p>
                                 </div>
-                                <span onClick={() => setShowRewardsModal(true)} className="mt-8 text-[10px] text-orange-500 font-bold uppercase tracking-[0.2em] cursor-pointer hover:text-white transition-colors border-b border-orange-500 pb-1 flex items-center gap-2 w-max">
+                                <span onClick={() => navigate("/rewards")} className="mt-8 text-[10px] text-orange-500 font-bold uppercase tracking-[0.2em] cursor-pointer hover:text-white transition-colors border-b border-orange-500 pb-1 flex items-center gap-2 w-max">
                                     Claim Voucher <FaTicketAlt />
                                 </span>
                             </div>

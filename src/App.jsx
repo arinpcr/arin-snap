@@ -5,6 +5,7 @@ import Loading from "./components/Loading";
 // Mengimport Halaman-Halaman
 const LandingPage = React.lazy(() => import("./pages/LandingPage"));
 const MemberPortal = React.lazy(() => import("./pages/MemberPortal")); // TAMBAHAN: Halaman Member
+const Rewards = React.lazy(() => import("./pages/Rewards")); // TAMBAHAN: Halaman Penukaran Poin
 const Dashboard = React.lazy(() => import("./pages/Dashboard"));
 const Sales = React.lazy(() => import("./pages/Sales")); 
 const Bookings = React.lazy(() => import("./pages/Bookings"));
@@ -33,6 +34,7 @@ function App() {
         {/* --- RUTE MEMBER PORTAL --- */}
         {/* Halaman khusus pelanggan yang sudah login */}
         <Route path="/member-portal" element={<MemberPortal />} />
+        <Route path="/rewards" element={<Rewards />} />
 
         {/* --- RUTE ADMIN (PAKAI SIDEBAR) --- */}
         <Route element={<MainLayout />}>
