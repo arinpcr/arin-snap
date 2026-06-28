@@ -11,6 +11,8 @@ export default function Rewards() {
     const [tierInfo, setTierInfo] = useState({ tier: "GOLD", discount: 15 });
     const [redemptions, setRedemptions] = useState([]);
     const [claimedVouchers, setClaimedVouchers] = useState([]);
+    const [txCount, setTxCount] = useState(0);
+    const [txTotal, setTxTotal] = useState(0);
     const [toastMessage, setToastMessage] = useState("");
     const [showConfirmModal, setShowConfirmModal] = useState(false);
     const [selectedReward, setSelectedReward] = useState(null);
@@ -29,14 +31,37 @@ export default function Rewards() {
         setTimeout(() => setToastMessage(""), 3500);
     };
 
-    const calculateTier = (pts) => {
-        if (pts >= 25000) return { tier: "PLATINUM", discount: 20 };
-        if (pts >= 10000) return { tier: "GOLD", discount: 15 };
-        if (pts >= 2500) return { tier: "SILVER", discount: 10 };
+    const calculateTier = (pts, count = 0, total = 0) => {
+        if (pts >= 25000 || count >= 5 || total >= 20000000) return { tier: "PLATINUM", discount: 20 };
+        if (pts >= 10000 || count >= 3 || total >= 10000000) return { tier: "GOLD", discount: 15 };
+        if (pts >= 2500 || count >= 1 || total >= 3000000) return { tier: "SILVER", discount: 10 };
         return { tier: "BRONZE", discount: 5 };
     };
 
     const fetchData = async (currentUser) => {
+        let count = 0;
+        let total = 0;
+        try {
+            const fullName = currentUser.user_metadata?.full_name || localStorage.getItem("registeredName") || (currentUser.email ? currentUser.email.split('@')[0] : "");
+            const { data: bookings } = await supabase
+                .from('booking')
+                .select('*')
+                .or(`user_id.eq.${currentUser.id}${fullName ? `,name.ilike.%${fullName}%` : ''}`);
+
+            const list = bookings || [];
+            count = list.length;
+            list.forEach(b => {
+                if (b.price) {
+                    const num = parseInt(b.price.toString().replace(/[^0-9]/g, '')) || 0;
+                    total += num;
+                }
+            });
+            setTxCount(count);
+            setTxTotal(total);
+        } catch (e) {
+            console.error("Error fetching bookings:", e);
+        }
+
         try {
             // Fetch Points
             const { data: ptsData } = await supabase
@@ -47,10 +72,10 @@ export default function Rewards() {
 
             if (ptsData) {
                 setPoints(ptsData.points);
-                setTierInfo(calculateTier(ptsData.points));
+                setTierInfo(calculateTier(ptsData.points, count, total));
             } else {
                 setPoints(12500);
-                setTierInfo(calculateTier(12500));
+                setTierInfo(calculateTier(12500, count, total));
             }
 
             // Fetch Redemptions
@@ -99,7 +124,7 @@ export default function Rewards() {
         setShowConfirmModal(false);
 
         const newPts = points - item.cost;
-        const newTier = calculateTier(newPts);
+        const newTier = calculateTier(newPts, txCount, txTotal);
         const rdmId = `RDM-${Math.floor(Math.random() * 8999) + 1000}`;
         const fullName = user.user_metadata?.full_name || localStorage.getItem("registeredName") || (user.email ? user.email.split('@')[0] : "Capella Member");
 
@@ -220,7 +245,7 @@ export default function Rewards() {
                             {points.toLocaleString()} <span className="text-sm font-normal text-white">PTS</span>
                         </div>
                         <div className="inline-flex items-center gap-1.5 bg-white/20 px-3 py-1 rounded-full text-xs text-white">
-                            <FaCrown className="text-orange-300" /> Tier {tierInfo.tier} ({tierInfo.discount}% Diskon Kamar)
+                            <FaCrown className="text-orange-300" /> Tier {tierInfo.tier} ({tierInfo.discount}% Diskon) • {txCount} Transaksi
                         </div>
                     </div>
                 </div>

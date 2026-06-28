@@ -18,6 +18,8 @@ export default function MemberPortal() {
     const [points, setPoints] = useState(12500);
     const [tierInfo, setTierInfo] = useState({ tier: "GOLD", discount: 15, nextTier: "PLATINUM", nextReq: 25000 });
     const [pastStays, setPastStays] = useState([]);
+    const [txCount, setTxCount] = useState(0);
+    const [txTotal, setTxTotal] = useState(0);
 
     // --- STATE MODAL & POPUP ---
     const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
@@ -78,14 +80,39 @@ export default function MemberPortal() {
         }
     ];
 
-    const calculateTier = (pts) => {
-        if (pts >= 25000) return { tier: "PLATINUM", discount: 20, nextTier: "MAX", nextReq: 25000 };
-        if (pts >= 10000) return { tier: "GOLD", discount: 15, nextTier: "PLATINUM", nextReq: 25000 };
-        if (pts >= 2500) return { tier: "SILVER", discount: 10, nextTier: "GOLD", nextReq: 10000 };
+    const calculateTier = (pts, count = 0, total = 0) => {
+        if (pts >= 25000 || count >= 5 || total >= 20000000) return { tier: "PLATINUM", discount: 20, nextTier: "MAX", nextReq: 25000 };
+        if (pts >= 10000 || count >= 3 || total >= 10000000) return { tier: "GOLD", discount: 15, nextTier: "PLATINUM", nextReq: 25000 };
+        if (pts >= 2500 || count >= 1 || total >= 3000000) return { tier: "SILVER", discount: 10, nextTier: "GOLD", nextReq: 10000 };
         return { tier: "BRONZE", discount: 5, nextTier: "SILVER", nextReq: 2500 };
     };
 
     const fetchMemberData = async (currentUser) => {
+        let count = 0;
+        let total = 0;
+        try {
+            const fullName = currentUser.user_metadata?.full_name || localStorage.getItem("registeredName") || (currentUser.email ? currentUser.email.split('@')[0] : "");
+            const { data: bookings } = await supabase
+                .from('booking')
+                .select('*')
+                .or(`user_id.eq.${currentUser.id}${fullName ? `,name.ilike.%${fullName}%` : ''}`)
+                .order('id', { ascending: false });
+
+            const list = bookings || [];
+            setPastStays(list);
+            count = list.length;
+            list.forEach(b => {
+                if (b.price) {
+                    const num = parseInt(b.price.toString().replace(/[^0-9]/g, '')) || 0;
+                    total += num;
+                }
+            });
+            setTxCount(count);
+            setTxTotal(total);
+        } catch (e) {
+            console.error("Error fetching bookings:", e);
+        }
+
         try {
             let { data: ptsData, error: ptsError } = await supabase
                 .from('member_points')
@@ -95,33 +122,29 @@ export default function MemberPortal() {
 
             if (!ptsData && !ptsError?.message?.includes("multiple")) {
                 const initialPoints = 12500;
+                const calc = calculateTier(initialPoints, count, total);
                 const { data: newPts } = await supabase
                     .from('member_points')
-                    .insert([{ user_id: currentUser.id, points: initialPoints, tier: 'GOLD' }])
+                    .insert([{ user_id: currentUser.id, points: initialPoints, tier: calc.tier }])
                     .select()
                     .single();
-                ptsData = newPts || { points: initialPoints, tier: 'GOLD' };
+                ptsData = newPts || { points: initialPoints, tier: calc.tier };
             }
 
             if (ptsData) {
                 setPoints(ptsData.points);
-                setTierInfo(calculateTier(ptsData.points));
+                const calc = calculateTier(ptsData.points, count, total);
+                setTierInfo(calc);
+                if (ptsData.tier !== calc.tier) {
+                    supabase.from('member_points').upsert({
+                        user_id: currentUser.id,
+                        points: ptsData.points,
+                        tier: calc.tier
+                    }, { onConflict: 'user_id' });
+                }
             }
         } catch (e) {
             console.error("Error fetching points:", e);
-        }
-
-        try {
-            const fullName = currentUser.user_metadata?.full_name || localStorage.getItem("registeredName") || (currentUser.email ? currentUser.email.split('@')[0] : "");
-            const { data: bookings } = await supabase
-                .from('booking')
-                .select('*')
-                .or(`user_id.eq.${currentUser.id}${fullName ? `,name.ilike.%${fullName}%` : ''}`)
-                .order('id', { ascending: false });
-
-            setPastStays(bookings || []);
-        } catch (e) {
-            console.error("Error fetching bookings:", e);
         }
     };
 
@@ -199,7 +222,7 @@ export default function MemberPortal() {
             return;
         }
         const newPts = points - cost;
-        const newTierInfo = calculateTier(newPts);
+        const newTierInfo = calculateTier(newPts, txCount, txTotal);
         
         try {
             await supabase.from('member_points').upsert({
@@ -334,9 +357,9 @@ export default function MemberPortal() {
                 <div className="absolute inset-0 bg-black/60 z-10"></div>
                 
                 <div className="relative z-20 text-center text-white mt-10">
-                    <div className="inline-flex items-center justify-center gap-2 border border-orange-500/50 bg-black/30 backdrop-blur-sm px-4 py-1.5 mb-6">
+                    <div className="inline-flex items-center justify-center gap-2 border border-orange-500/50 bg-black/30 backdrop-blur-sm px-4 py-1.5 mb-6 rounded-full">
                         <FaCrown className="text-orange-400 text-xs" />
-                        <span className="text-[10px] text-white font-bold tracking-[0.2em] uppercase">{loyaltyTier} MEMBER ({discountRate}% OFF)</span>
+                        <span className="text-[10px] text-white font-bold tracking-[0.2em] uppercase">{loyaltyTier} MEMBER ({discountRate}% OFF) • {txCount} TRANSAKSI</span>
                     </div>
                     <h2 className="text-3xl md:text-5xl font-serif tracking-[0.15em] uppercase mb-2 drop-shadow-md text-white">
                         Welcome, {fullName}
@@ -355,7 +378,7 @@ export default function MemberPortal() {
                 <div className="bg-white shadow-xl shadow-gray-200/50 border border-gray-100 p-6 flex flex-col md:flex-row items-center justify-between gap-6">
                     <div className="w-full md:w-2/3">
                         <div className="flex justify-between text-[10px] font-bold uppercase tracking-[0.2em] mb-3">
-                            <span className="text-orange-500">{loyaltyTier} ({points.toLocaleString()} PTS)</span>
+                            <span className="text-orange-500">{loyaltyTier} ({points.toLocaleString()} PTS • {txCount} Booking)</span>
                             <span className="text-gray-400">{nextTier}</span>
                         </div>
                         <div className="w-full bg-gray-100 h-1.5 overflow-hidden">
