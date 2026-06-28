@@ -51,7 +51,6 @@ export default function Register() {
                     role: role,
                     created_at: new Date().toISOString()
                 };
-                await supabase.from('user').upsert([userData], { onConflict: 'id' }).catch(() => {});
                 await supabase.from('users').upsert([userData], { onConflict: 'id' }).catch(() => {});
 
                 if (role === "member") {

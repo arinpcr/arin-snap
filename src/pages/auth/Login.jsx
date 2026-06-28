@@ -86,7 +86,6 @@ export default function Login() {
                 name: userName,
                 role: dbRole
             };
-            await supabase.from('user').upsert([userData], { onConflict: 'id' }).catch(() => {});
             await supabase.from('users').upsert([userData], { onConflict: 'id' }).catch(() => {});
 
             // ARAHKAN SESUAI ROLE DATABASE
