@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react"; 
 import PageHeader from "../components/PageHeader";
 import { supabase } from "../lib/supabase"; // Import Supabase
-import { FaTrash, FaStar, FaCommentDots } from "react-icons/fa"; // Import ikon hapus & star
+import { FaTrash } from "react-icons/fa"; // Import ikon hapus
 
 export default function Guests() {
     const [showForm, setShowForm] = useState(false);
@@ -9,7 +9,6 @@ export default function Guests() {
 
     // STATE UNTUK SUPABASE
     const [guestsData, setGuestsData] = useState([]); // Menyimpan data dari database
-    const [reviewsData, setReviewsData] = useState([]);
     const [loading, setLoading] = useState(true);
 
     // STATE UNTUK FORM INPUT (Menangkap ketikan user)
@@ -49,23 +48,6 @@ export default function Guests() {
             console.error("Error fetching guests:", error.message);
         } finally {
             setLoading(false);
-        }
-
-        try {
-            const { data: revs } = await supabase.from('reviews').select('*').order('created_at', { ascending: false });
-            setReviewsData(revs || []);
-        } catch (e) {
-            console.error("Error fetching reviews:", e);
-        }
-    };
-
-    const handleDeleteReview = async (id) => {
-        if (!window.confirm("Hapus ulasan member ini?")) return;
-        try {
-            await supabase.from('reviews').delete().eq('id', id);
-            fetchGuests();
-        } catch (e) {
-            alert("Error: " + e.message);
         }
     };
 
@@ -205,58 +187,6 @@ export default function Guests() {
                                             </td>
                                             <td className="p-6 text-center">
                                                 <button onClick={() => handleDelete(guest.id)} className="text-rose-400 hover:text-rose-600 p-2 bg-rose-50 rounded-lg transition-colors">
-                                                    <FaTrash />
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    ))
-                                )}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                {/* --- SECTION ADMIN: REVIEW & FEEDBACK DATABASE --- */}
-                <div className="bg-white rounded-[32px] p-8 shadow-xl border border-gray-100 mt-12">
-                    <div className="flex items-center gap-3 mb-6">
-                        <div className="w-12 h-12 rounded-2xl bg-orange-50 flex items-center justify-center text-orange-500 text-xl shadow-sm">
-                            <FaCommentDots />
-                        </div>
-                        <div>
-                            <h3 className="text-2xl font-bold text-gray-800">Member Reviews & Feedback</h3>
-                            <p className="text-sm text-gray-400">Daftar ulasan yang dikirimkan member melalui Member Portal (Ditampilkan di Landing Page)</p>
-                        </div>
-                    </div>
-
-                    <div className="overflow-x-auto">
-                        <table className="w-full text-left border-collapse">
-                            <thead>
-                                <tr className="border-b border-gray-100 text-[11px] uppercase tracking-wider text-gray-400 bg-gray-50/50">
-                                    <th className="p-4 font-extrabold rounded-l-2xl">Member Name</th>
-                                    <th className="p-4 font-extrabold">Room / Stay</th>
-                                    <th className="p-4 font-extrabold text-center">Rating</th>
-                                    <th className="p-4 font-extrabold">Comment / Ulasan</th>
-                                    <th className="p-4 font-extrabold text-center rounded-r-2xl">Action</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-gray-100 text-sm">
-                                {reviewsData.length === 0 ? (
-                                    <tr>
-                                        <td colSpan="5" className="text-center py-8 text-gray-400 font-medium italic">Belum ada ulasan masuk dari database.</td>
-                                    </tr>
-                                ) : (
-                                    reviewsData.map((rev) => (
-                                        <tr key={rev.id} className="hover:bg-orange-50/20 transition-colors">
-                                            <td className="p-4 font-bold text-gray-800">{rev.name || "Member"}</td>
-                                            <td className="p-4 text-gray-500 text-xs font-semibold">{rev.room_title || "Luxury Suite"}</td>
-                                            <td className="p-4 text-center">
-                                                <div className="inline-flex items-center gap-1 text-orange-400 font-bold bg-orange-50 px-3 py-1 rounded-full text-xs">
-                                                    <FaStar /> {rev.rating || 5}
-                                                </div>
-                                            </td>
-                                            <td className="p-4 text-gray-600 italic max-w-md">"{rev.comment}"</td>
-                                            <td className="p-4 text-center">
-                                                <button onClick={() => handleDeleteReview(rev.id)} className="text-rose-400 hover:text-rose-600 p-2 bg-rose-50 rounded-lg transition-colors" title="Hapus Ulasan">
                                                     <FaTrash />
                                                 </button>
                                             </td>

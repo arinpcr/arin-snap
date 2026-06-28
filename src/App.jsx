@@ -12,6 +12,7 @@ const Bookings = React.lazy(() => import("./pages/Bookings"));
 const Guests = React.lazy(() => import("./pages/Guests"));
 const Inventory = React.lazy(() => import("./pages/Inventory"));
 const InventoryDetail = React.lazy(() => import("./pages/InventoryDetail"));
+const AdminReviews = React.lazy(() => import("./pages/AdminReviews"));
 const Components = React.lazy(() => import("./pages/Components"));
 const NotFound = React.lazy(() => import("./pages/NotFound"));
 const MainLayout = React.lazy(() => import("./layout/MainLayout"));
@@ -45,6 +46,7 @@ function App() {
           <Route path="/guests" element={<Guests />} />
           <Route path="/inventory" element={<Inventory />} />
           <Route path="/inventory/:id" element={<InventoryDetail />} />
+          <Route path="/reviews" element={<AdminReviews />} />
           <Route path="/components" element={<Components />} />
 
           {/* Rute Error Admin */}

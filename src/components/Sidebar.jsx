@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { FaHome, FaBed, FaUserFriends, FaSignOutAlt, FaSignInAlt, FaBan, FaBox, FaChevronDown, FaChevronUp } from "react-icons/fa";
+import { FaHome, FaBed, FaUserFriends, FaSignOutAlt, FaSignInAlt, FaBan, FaBox, FaChevronDown, FaChevronUp, FaCommentDots } from "react-icons/fa";
 import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "../lib/supabase";
 
@@ -84,6 +84,7 @@ export default function Sidebar() {
           <li><NavLink to="/bookings" className={menuClass}><FaBed className="text-xl" /> <span>Bookings</span></NavLink></li>
           <li><NavLink to="/guests" className={menuClass}><FaUserFriends className="text-xl" /> <span>Guests</span></NavLink></li>
           <li><NavLink to="/inventory" className={menuClass}><FaBox className="text-xl" /> <span>Inventory</span></NavLink></li>
+          <li><NavLink to="/reviews" className={menuClass}><FaCommentDots className="text-xl" /> <span>Guest Reviews</span></NavLink></li>
           
           <li className="mt-8 pt-6 border-t border-gray-100">
             <span className="px-4 text-[11px] font-bold text-gray-400 uppercase tracking-widest">Error Pages</span>
