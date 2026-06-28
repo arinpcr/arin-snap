@@ -194,8 +194,14 @@ export default function Rewards() {
             </nav>
 
             {/* Hero Section */}
-            <header className="bg-gray-900 text-white py-16 px-6 relative overflow-hidden">
-                <div className="absolute right-0 top-0 translate-x-1/3 -translate-y-1/3 opacity-10 pointer-events-none">
+            <header className="relative bg-gray-900 text-white py-20 px-6 overflow-hidden min-h-[380px] flex items-center">
+                <img 
+                    src="https://images.pexels.com/photos/261102/pexels-photo-261102.jpeg?auto=compress&cs=tinysrgb&w=2000" 
+                    alt="Capella Rewards Lounge" 
+                    className="absolute inset-0 w-full h-full object-cover z-0 opacity-45"
+                />
+                <div className="absolute inset-0 bg-gradient-to-r from-gray-950 via-gray-900/80 to-black/40 z-10"></div>
+                <div className="absolute right-0 top-0 translate-x-1/3 -translate-y-1/3 opacity-15 pointer-events-none z-10">
                     <FaGift className="text-[400px] text-orange-500" />
                 </div>
                 <div className="max-w-6xl mx-auto relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
