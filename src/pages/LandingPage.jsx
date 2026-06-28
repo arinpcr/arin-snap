@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { Link, useNavigate } from "react-router-dom";
-import { FaStar, FaChevronDown, FaChevronUp, FaEnvelope, FaShoppingCart } from "react-icons/fa";
+import { FaStar, FaChevronDown, FaChevronUp, FaEnvelope, FaShoppingCart, FaTimes, FaCheck } from "react-icons/fa";
 import { supabase } from "../lib/supabase";
 
 export default function LandingPage() {
@@ -9,11 +10,19 @@ export default function LandingPage() {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [userRole, setUserRole] = useState("member");
     const [reviews, setReviews] = useState([]);
+    const [selectedPopupItem, setSelectedPopupItem] = useState(null);
+    const [popupSuccess, setPopupSuccess] = useState(false);
+
     const [bookingForm, setBookingForm] = useState({
         checkIn: "",
         checkOut: "",
         promoCode: ""
     });
+
+    const handleOpenPopup = (item) => {
+        setPopupSuccess(false);
+        setSelectedPopupItem(item);
+    };
 
     useEffect(() => {
         const checkLogin = async () => {
@@ -239,7 +248,7 @@ export default function LandingPage() {
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                        <div className="group cursor-pointer bg-white border border-gray-100 p-6 hover:shadow-xl transition-all flex flex-col justify-between">
+                        <div className="group bg-white border border-gray-100 p-6 hover:shadow-xl transition-all flex flex-col justify-between">
                             <div>
                                 <div className="overflow-hidden mb-6 relative">
                                     <img src="https://images.unsplash.com/photo-1540555700478-4be289fbecef?q=80&w=800&auto=format&fit=crop" alt="Auriga Spa" className="w-full h-[220px] object-cover group-hover:scale-105 transition-transform duration-1000" />
@@ -248,10 +257,16 @@ export default function LandingPage() {
                                 <h3 className="text-xl font-serif text-gray-900 mb-3">Auriga Spa & Wellness</h3>
                                 <p className="text-xs text-gray-500 leading-relaxed font-light mb-6">Perawatan holistik berlandaskan fase siklus bulan dengan bahan organik alami untuk memulihkan vitalitas tubuh.</p>
                             </div>
-                            <span className="text-[10px] text-orange-500 font-bold uppercase tracking-[0.2em] group-hover:text-gray-900 transition-colors border-b border-orange-500 pb-1 self-start">Discover More</span>
+                            <button onClick={() => handleOpenPopup({
+                                title: "Auriga Spa & Wellness",
+                                category: "Wellness Sanctuary",
+                                image: "https://images.unsplash.com/photo-1540555700478-4be289fbecef?q=80&w=800&auto=format&fit=crop",
+                                desc: "Perawatan holistik berlandaskan fase siklus bulan dengan bahan organik alami untuk memulihkan vitalitas tubuh.",
+                                detail: "Nikmati fasilitas spa bertaraf internasional dengan terapis bersertifikasi global. Tersedia kolam hidroterapi mandi uap herbal, sauna inframerah, dan ruang relaksasi privat dengan pemandangan alam."
+                            })} className="text-[10px] text-orange-500 font-bold uppercase tracking-[0.2em] group-hover:text-gray-900 transition-colors border-b border-orange-500 pb-1 self-start cursor-pointer">Discover More →</button>
                         </div>
 
-                        <div className="group cursor-pointer bg-white border border-gray-100 p-6 hover:shadow-xl transition-all flex flex-col justify-between">
+                        <div className="group bg-white border border-gray-100 p-6 hover:shadow-xl transition-all flex flex-col justify-between">
                             <div>
                                 <div className="overflow-hidden mb-6 relative">
                                     <img src="https://images.unsplash.com/photo-1576013551627-0cc20b96c2a7?q=80&w=800&auto=format&fit=crop" alt="Vitality Pool" className="w-full h-[220px] object-cover group-hover:scale-105 transition-transform duration-1000" />
@@ -260,10 +275,16 @@ export default function LandingPage() {
                                 <h3 className="text-xl font-serif text-gray-900 mb-3">Infinity Vitality Pool</h3>
                                 <p className="text-xs text-gray-500 leading-relaxed font-light mb-6">Kolam renang air hangat bertingkat yang menghadap langsung ke panorama alam terbuka yang memukau dan menenangkan.</p>
                             </div>
-                            <span className="text-[10px] text-orange-500 font-bold uppercase tracking-[0.2em] group-hover:text-gray-900 transition-colors border-b border-orange-500 pb-1 self-start">Discover More</span>
+                            <button onClick={() => handleOpenPopup({
+                                title: "Infinity Vitality Pool",
+                                category: "Leisure & Recreation",
+                                image: "https://images.unsplash.com/photo-1576013551627-0cc20b96c2a7?q=80&w=800&auto=format&fit=crop",
+                                desc: "Kolam renang air hangat bertingkat yang menghadap langsung ke panorama alam terbuka yang memukau dan menenangkan.",
+                                detail: "Kolam renang berdesain infinity pool yang dilengkapi dengan sistem pengatur suhu alami, kursi jemur terendam air (submerged loungers), serta pelayanan poolside bar untuk minuman penyegaran eksklusif."
+                            })} className="text-[10px] text-orange-500 font-bold uppercase tracking-[0.2em] group-hover:text-gray-900 transition-colors border-b border-orange-500 pb-1 self-start cursor-pointer">Discover More →</button>
                         </div>
 
-                        <div className="group cursor-pointer bg-white border border-gray-100 p-6 hover:shadow-xl transition-all flex flex-col justify-between">
+                        <div className="group bg-white border border-gray-100 p-6 hover:shadow-xl transition-all flex flex-col justify-between">
                             <div>
                                 <div className="overflow-hidden mb-6 relative">
                                     <img src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=800&auto=format&fit=crop" alt="Michelin Dining" className="w-full h-[220px] object-cover group-hover:scale-105 transition-transform duration-1000" />
@@ -272,10 +293,16 @@ export default function LandingPage() {
                                 <h3 className="text-xl font-serif text-gray-900 mb-3">Michelin-Star Dining</h3>
                                 <p className="text-xs text-gray-500 leading-relaxed font-light mb-6">Petualangan kuliner magis dari master chef internasional yang memadukan teknik modern dengan bahan lokal berkelas.</p>
                             </div>
-                            <span className="text-[10px] text-orange-500 font-bold uppercase tracking-[0.2em] group-hover:text-gray-900 transition-colors border-b border-orange-500 pb-1 self-start">Discover More</span>
+                            <button onClick={() => handleOpenPopup({
+                                title: "Michelin-Star Dining",
+                                category: "Fine Gastronomy",
+                                image: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=800&auto=format&fit=crop",
+                                desc: "Petualangan kuliner magis dari master chef internasional yang memadukan teknik modern dengan bahan lokal berkelas.",
+                                detail: "Nikmati hidangan degustation menu 7-course yang diracik khusus oleh Chef Executive kami dengan bahan baku musiman premium, dipadukan secara harmonis dengan koleksi wine eksklusif dari sommelier profesional."
+                            })} className="text-[10px] text-orange-500 font-bold uppercase tracking-[0.2em] group-hover:text-gray-900 transition-colors border-b border-orange-500 pb-1 self-start cursor-pointer">Discover More →</button>
                         </div>
 
-                        <div className="group cursor-pointer bg-white border border-gray-100 p-6 hover:shadow-xl transition-all flex flex-col justify-between">
+                        <div className="group bg-white border border-gray-100 p-6 hover:shadow-xl transition-all flex flex-col justify-between">
                             <div>
                                 <div className="overflow-hidden mb-6 relative">
                                     <img src="https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?q=80&w=800&auto=format&fit=crop" alt="The Living Room" className="w-full h-[220px] object-cover group-hover:scale-105 transition-transform duration-1000" />
@@ -284,7 +311,13 @@ export default function LandingPage() {
                                 <h3 className="text-xl font-serif text-gray-900 mb-3">The Living Room</h3>
                                 <p className="text-xs text-gray-500 leading-relaxed font-light mb-6">Ruang bersantai eksklusif bagi tamu untuk menikmati afternoon tea, membaca literatur langka, dan bersosialisasi.</p>
                             </div>
-                            <span className="text-[10px] text-orange-500 font-bold uppercase tracking-[0.2em] group-hover:text-gray-900 transition-colors border-b border-orange-500 pb-1 self-start">Discover More</span>
+                            <button onClick={() => handleOpenPopup({
+                                title: "The Living Room Lounge",
+                                category: "Private Sanctuary",
+                                image: "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?q=80&w=800&auto=format&fit=crop",
+                                desc: "Ruang bersantai eksklusif bagi tamu untuk menikmati afternoon tea, membaca literatur langka, dan bersosialisasi.",
+                                detail: "Akses khusus bagi tamu Capella. Menyajikan sajian kopi artisanal, camilan sore tradisional, serta ritual senja (Evening Ritual) yang memperkenalkan kebudayaan dan sejarah lokal setiap harinya."
+                            })} className="text-[10px] text-orange-500 font-bold uppercase tracking-[0.2em] group-hover:text-gray-900 transition-colors border-b border-orange-500 pb-1 self-start cursor-pointer">Discover More →</button>
                         </div>
                     </div>
                 </div>
@@ -299,32 +332,56 @@ export default function LandingPage() {
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12">
-                        <div className="group cursor-pointer bg-white border border-gray-100 p-6 hover:shadow-xl transition-all">
-                            <div className="overflow-hidden mb-6 relative">
-                                <img src="https://images.unsplash.com/photo-1571896349842-33c89424de2d?q=80&w=800&auto=format&fit=crop" className="w-full h-[250px] object-cover group-hover:scale-105 transition-transform duration-1000" alt="Spa Offer" />
-                                <div className="absolute top-4 right-4 bg-orange-500 text-white text-[9px] font-bold tracking-[0.2em] uppercase px-3 py-1">Member Only</div>
+                        <div className="group bg-white border border-gray-100 p-6 hover:shadow-xl transition-all flex flex-col justify-between">
+                            <div>
+                                <div className="overflow-hidden mb-6 relative">
+                                    <img src="https://images.unsplash.com/photo-1571896349842-33c89424de2d?q=80&w=800&auto=format&fit=crop" className="w-full h-[250px] object-cover group-hover:scale-105 transition-transform duration-1000" alt="Spa Offer" />
+                                    <div className="absolute top-4 right-4 bg-orange-500 text-white text-[9px] font-bold tracking-[0.2em] uppercase px-3 py-1">Member Only</div>
+                                </div>
+                                <h3 className="text-xl font-serif text-gray-900 mb-3">Stay 3, Pay 2</h3>
+                                <p className="text-xs text-gray-500 leading-relaxed font-light mb-6">Perpanjang momen relaksasi Anda. Pesan 3 malam di akomodasi Suite kami dan cukup bayar untuk 2 malam.</p>
                             </div>
-                            <h3 className="text-xl font-serif text-gray-900 mb-3">Stay 3, Pay 2</h3>
-                            <p className="text-xs text-gray-500 leading-relaxed font-light mb-6">Perpanjang momen relaksasi Anda. Pesan 3 malam di akomodasi Suite kami dan cukup bayar untuk 2 malam.</p>
-                            <span className="text-[10px] text-orange-500 font-bold uppercase tracking-[0.2em] group-hover:text-gray-900 transition-colors border-b border-orange-500 pb-1">Discover More</span>
+                            <button onClick={() => handleOpenPopup({
+                                title: "Stay 3, Pay 2 Package",
+                                category: "Exclusive Offer",
+                                image: "https://images.unsplash.com/photo-1571896349842-33c89424de2d?q=80&w=800&auto=format&fit=crop",
+                                desc: "Perpanjang momen relaksasi Anda. Pesan 3 malam di akomodasi Suite kami dan cukup bayar untuk 2 malam.",
+                                detail: "Berlaku untuk pemesanan kamar tipe apa pun. Sudah termasuk antar-jemput bandara pribadi dengan limusin mewah, sarapan prasmanan di The Knolls, dan kredit spa senilai USD $150."
+                            })} className="text-[10px] text-orange-500 font-bold uppercase tracking-[0.2em] group-hover:text-gray-900 transition-colors border-b border-orange-500 pb-1 self-start cursor-pointer">Discover More →</button>
                         </div>
 
-                        <div className="group cursor-pointer bg-white border border-gray-100 p-6 hover:shadow-xl transition-all">
-                            <div className="overflow-hidden mb-6 relative">
-                                <img src="https://images.unsplash.com/photo-1550966871-3ed3cdb5ed0c?q=80&w=800&auto=format&fit=crop" className="w-full h-[250px] object-cover group-hover:scale-105 transition-transform duration-1000" alt="Dining Offer" />
+                        <div className="group bg-white border border-gray-100 p-6 hover:shadow-xl transition-all flex flex-col justify-between">
+                            <div>
+                                <div className="overflow-hidden mb-6 relative">
+                                    <img src="https://images.unsplash.com/photo-1550966871-3ed3cdb5ed0c?q=80&w=800&auto=format&fit=crop" className="w-full h-[250px] object-cover group-hover:scale-105 transition-transform duration-1000" alt="Dining Offer" />
+                                </div>
+                                <h3 className="text-xl font-serif text-gray-900 mb-3">Gastronomic Journey</h3>
+                                <p className="text-xs text-gray-500 leading-relaxed font-light mb-6">Paket menginap yang sudah termasuk makan malam eksklusif 5-course di restoran Michelin-star kami.</p>
                             </div>
-                            <h3 className="text-xl font-serif text-gray-900 mb-3">Gastronomic Journey</h3>
-                            <p className="text-xs text-gray-500 leading-relaxed font-light mb-6">Paket menginap yang sudah termasuk makan malam eksklusif 5-course di restoran Michelin-star kami.</p>
-                            <span className="text-[10px] text-orange-500 font-bold uppercase tracking-[0.2em] group-hover:text-gray-900 transition-colors border-b border-orange-500 pb-1">Discover More</span>
+                            <button onClick={() => handleOpenPopup({
+                                title: "Gastronomic Journey Offer",
+                                category: "Culinary Experience",
+                                image: "https://images.unsplash.com/photo-1550966871-3ed3cdb5ed0c?q=80&w=800&auto=format&fit=crop",
+                                desc: "Paket menginap yang sudah termasuk makan malam eksklusif 5-course di restoran Michelin-star kami.",
+                                detail: "Paket ini mencakup menginap 2 malam di One-Bedroom Villa, sesi kelas memasak privat bersama Executive Chef, dan makan malam romantis dengan wine pairing eksklusif."
+                            })} className="text-[10px] text-orange-500 font-bold uppercase tracking-[0.2em] group-hover:text-gray-900 transition-colors border-b border-orange-500 pb-1 self-start cursor-pointer">Discover More →</button>
                         </div>
 
-                        <div className="group cursor-pointer bg-white border border-gray-100 p-6 hover:shadow-xl transition-all">
-                            <div className="overflow-hidden mb-6 relative">
-                                <img src="https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?q=80&w=800&auto=format&fit=crop" className="w-full h-[250px] object-cover group-hover:scale-105 transition-transform duration-1000" alt="Wellness Offer" />
+                        <div className="group bg-white border border-gray-100 p-6 hover:shadow-xl transition-all flex flex-col justify-between">
+                            <div>
+                                <div className="overflow-hidden mb-6 relative">
+                                    <img src="https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?q=80&w=800&auto=format&fit=crop" className="w-full h-[250px] object-cover group-hover:scale-105 transition-transform duration-1000" alt="Wellness Offer" />
+                                </div>
+                                <h3 className="text-xl font-serif text-gray-900 mb-3">Aura Wellness Retreat</h3>
+                                <p className="text-xs text-gray-500 leading-relaxed font-light mb-6">Pelarian dari kesibukan. Termasuk sesi pijat tradisional 90 menit dan akses eksklusif ke Thermal Suite.</p>
                             </div>
-                            <h3 className="text-xl font-serif text-gray-900 mb-3">Aura Wellness Retreat</h3>
-                            <p className="text-xs text-gray-500 leading-relaxed font-light mb-6">Pelarian dari kesibukan. Termasuk sesi pijat tradisional 90 menit dan akses eksklusif ke Thermal Suite.</p>
-                            <span className="text-[10px] text-orange-500 font-bold uppercase tracking-[0.2em] group-hover:text-gray-900 transition-colors border-b border-orange-500 pb-1">Discover More</span>
+                            <button onClick={() => handleOpenPopup({
+                                title: "Aura Wellness Retreat Package",
+                                category: "Wellness Offer",
+                                image: "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?q=80&w=800&auto=format&fit=crop",
+                                desc: "Pelarian dari kesibukan. Termasuk sesi pijat tradisional 90 menit dan akses eksklusif ke Thermal Suite.",
+                                detail: "Program detoksifikasi tubuh dan pikiran selama 3 hari 2 malam. Dilengkapi konsultasi nutrisi pribadi, sesi yoga harian di bawah sinar matahari pagi, dan perawatan holistik menyeluruh di Auriga Spa."
+                            })} className="text-[10px] text-orange-500 font-bold uppercase tracking-[0.2em] group-hover:text-gray-900 transition-colors border-b border-orange-500 pb-1 self-start cursor-pointer">Discover More →</button>
                         </div>
                     </div>
                 </div>
@@ -351,7 +408,13 @@ export default function LandingPage() {
                                 </div>
                                 <p className="text-xs text-gray-500 leading-relaxed font-light mb-8">Hadirkan ketenangan di kamar Anda dengan pilihan wewangian khas Capella. Alat ini akan diatur di kamar Anda beserta set essential oil eksklusif.</p>
                             </div>
-                            <button onClick={() => alert("Item berhasil ditambahkan ke keranjang reservasi Anda!")} className="w-full flex items-center justify-center gap-3 bg-white hover:bg-orange-500 text-gray-900 hover:text-white border border-gray-200 hover:border-orange-500 py-4 text-[10px] font-bold tracking-[0.2em] uppercase transition-all">
+                            <button onClick={() => handleOpenPopup({
+                                title: "Aroma Diffuser Pro",
+                                category: "Boutique Add-On",
+                                price: "$45",
+                                desc: "Hadirkan ketenangan di kamar Anda dengan pilihan wewangian khas Capella. Alat ini akan diatur di kamar Anda beserta set essential oil eksklusif.",
+                                detail: "Diffuser elektronik berteknologi ultrasonic dengan lampu tidur LED lembut. Sudah termasuk 3 botol essential oil murni khas Capella (Moonlight Calm, Bergamot Breeze, dan Forest Mist)."
+                            })} className="w-full flex items-center justify-center gap-3 bg-white hover:bg-orange-500 text-gray-900 hover:text-white border border-gray-200 hover:border-orange-500 py-4 text-[10px] font-bold tracking-[0.2em] uppercase transition-all cursor-pointer">
                                 <FaShoppingCart className="text-sm" /> Add to Stay
                             </button>
                         </div>
@@ -367,7 +430,13 @@ export default function LandingPage() {
                                 </div>
                                 <p className="text-xs text-gray-500 leading-relaxed font-light mb-8">Jubah mandi berbahan sutra 100% premium (SoftTouch) untuk kenyamanan maksimal. Dapat Anda bawa pulang sebagai suvenir manis dari Capella.</p>
                             </div>
-                            <button onClick={() => alert("Item berhasil ditambahkan ke keranjang reservasi Anda!")} className="w-full flex items-center justify-center gap-3 bg-white hover:bg-orange-500 text-gray-900 hover:text-white border border-gray-200 hover:border-orange-500 py-4 text-[10px] font-bold tracking-[0.2em] uppercase transition-all">
+                            <button onClick={() => handleOpenPopup({
+                                title: "Silk Bathrobe Luxury",
+                                category: "Boutique Add-On",
+                                price: "$120",
+                                desc: "Jubah mandi berbahan sutra 100% premium (SoftTouch) untuk kenyamanan maksimal. Dapat Anda bawa pulang sebagai suvenir manis dari Capella.",
+                                detail: "Dirancang eksklusif oleh desainer Italia dengan bordiran logo emas Capella di bagian kerah. Tersedia dalam ukuran M, L, dan XL. Dikemas dalam kotak hadiah mewah siap pakai."
+                            })} className="w-full flex items-center justify-center gap-3 bg-white hover:bg-orange-500 text-gray-900 hover:text-white border border-gray-200 hover:border-orange-500 py-4 text-[10px] font-bold tracking-[0.2em] uppercase transition-all cursor-pointer">
                                 <FaShoppingCart className="text-sm" /> Add to Stay
                             </button>
                         </div>
@@ -383,7 +452,13 @@ export default function LandingPage() {
                                 </div>
                                 <p className="text-xs text-gray-500 leading-relaxed font-light mb-8">Pilihan teh hijau organik eksklusif ZenBrew dari perkebunan terbaik, disiapkan di mini-bar kamar Anda lengkap dengan perlengkapan seduh.</p>
                             </div>
-                            <button onClick={() => alert("Item berhasil ditambahkan ke keranjang reservasi Anda!")} className="w-full flex items-center justify-center gap-3 bg-white hover:bg-orange-500 text-gray-900 hover:text-white border border-gray-200 hover:border-orange-500 py-4 text-[10px] font-bold tracking-[0.2em] uppercase transition-all">
+                            <button onClick={() => handleOpenPopup({
+                                title: "Organic Green Tea Set",
+                                category: "Boutique Add-On",
+                                price: "$12",
+                                desc: "Pilihan teh hijau organik eksklusif ZenBrew dari perkebunan terbaik, disiapkan di mini-bar kamar Anda lengkap dengan perlengkapan seduh.",
+                                detail: "Dipetik langsung dari pegunungan teh dataran tinggi yang bebas pestisida. Disajikan dengan teko keramik tradisional Jepang dan madu hutan organik lokal sebagai pendamping sempurna."
+                            })} className="w-full flex items-center justify-center gap-3 bg-white hover:bg-orange-500 text-gray-900 hover:text-white border border-gray-200 hover:border-orange-500 py-4 text-[10px] font-bold tracking-[0.2em] uppercase transition-all cursor-pointer">
                                 <FaShoppingCart className="text-sm" /> Add to Stay
                             </button>
                         </div>
@@ -700,6 +775,66 @@ export default function LandingPage() {
                 </div>
             </footer>
 
+            {/* --- MODAL POPUP PORTAL --- */}
+            {selectedPopupItem && createPortal(
+                <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+                    <div className="bg-white rounded-2xl max-w-lg w-full overflow-hidden shadow-2xl border border-gray-100 flex flex-col transform transition-all animate-fadeIn">
+                        {selectedPopupItem.image && (
+                            <div className="relative h-56 w-full overflow-hidden">
+                                <img src={selectedPopupItem.image} alt={selectedPopupItem.title} className="w-full h-full object-cover" />
+                                <button onClick={() => setSelectedPopupItem(null)} className="absolute top-4 right-4 bg-black/50 hover:bg-black/80 text-white w-8 h-8 rounded-full flex items-center justify-center transition-all cursor-pointer">
+                                    <FaTimes />
+                                </button>
+                                {selectedPopupItem.category && (
+                                    <span className="absolute bottom-4 left-4 bg-orange-500 text-white text-[9px] font-bold tracking-[0.2em] uppercase px-3 py-1 rounded-sm shadow-md">
+                                        {selectedPopupItem.category}
+                                    </span>
+                                )}
+                            </div>
+                        )}
+                        <div className="p-8">
+                            {!selectedPopupItem.image && (
+                                <div className="flex justify-between items-start mb-4">
+                                    <span className="bg-orange-50 text-orange-500 text-[9px] font-bold tracking-[0.2em] uppercase px-3 py-1 rounded-sm">
+                                        {selectedPopupItem.category || "Detail Info"}
+                                    </span>
+                                    <button onClick={() => setSelectedPopupItem(null)} className="text-gray-400 hover:text-gray-700 cursor-pointer">
+                                        <FaTimes className="text-lg" />
+                                    </button>
+                                </div>
+                            )}
+                            <div className="flex justify-between items-baseline gap-4 mb-4">
+                                <h3 className="text-2xl font-serif text-gray-900 font-bold">{selectedPopupItem.title}</h3>
+                                {selectedPopupItem.price && (
+                                    <span className="text-xl font-serif font-bold text-orange-500 shrink-0">{selectedPopupItem.price}</span>
+                                )}
+                            </div>
+                            <p className="text-xs text-gray-600 font-light leading-relaxed mb-4">{selectedPopupItem.desc}</p>
+                            {selectedPopupItem.detail && (
+                                <div className="bg-gray-50 p-4 border border-gray-100 mb-6 rounded-lg">
+                                    <p className="text-xs text-gray-500 italic font-light leading-relaxed">"{selectedPopupItem.detail}"</p>
+                                </div>
+                            )}
+
+                            {popupSuccess ? (
+                                <div className="bg-emerald-50 border border-emerald-200 text-emerald-700 p-4 rounded-xl text-center text-xs font-medium mb-4 flex items-center justify-center gap-2">
+                                    <FaCheck className="text-emerald-500 shrink-0" /> Permintaan Anda telah dicatat oleh sistem concierge kami!
+                                </div>
+                            ) : null}
+
+                            <div className="flex gap-3 pt-2 border-t border-gray-100">
+                                <button onClick={() => setSelectedPopupItem(null)} className="flex-1 py-3 px-4 border border-gray-300 text-gray-700 hover:bg-gray-100 text-[10px] font-bold uppercase tracking-[0.15em] transition-all cursor-pointer">
+                                    Tutup
+                                </button>
+                                <button onClick={() => setPopupSuccess(true)} className="flex-1 py-3 px-4 bg-gray-900 hover:bg-orange-500 text-white text-[10px] font-bold uppercase tracking-[0.15em] transition-all cursor-pointer">
+                                    {selectedPopupItem.price ? "Konfirmasi Pesanan" : "Tertarik / Hubungi Kami"}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>,
+                document.body
+            )}
         </div>
     );
 }
