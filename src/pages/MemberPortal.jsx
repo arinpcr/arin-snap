@@ -369,9 +369,12 @@ export default function MemberPortal() {
                             )}
                         </p>
                     </div>
-                    <div className="w-full md:w-auto">
-                        <button onClick={() => showToast("Anda akan diarahkan ke halaman cara mendapatkan poin.")} className="w-full text-[10px] bg-white border border-gray-900 text-gray-900 hover:bg-gray-900 hover:text-white px-6 py-3 font-bold uppercase tracking-[0.2em] transition-all">
-                            Earn More Points
+                    <div className="w-full md:w-auto flex flex-col sm:flex-row gap-3 mt-4 md:mt-0">
+                        <button onClick={() => navigate("/rewards")} className="w-full sm:w-auto text-xs bg-orange-500 hover:bg-orange-600 text-white px-6 py-3.5 font-bold uppercase tracking-[0.15em] transition-all rounded-xl shadow-md flex items-center justify-center gap-2 cursor-pointer">
+                            <FaGift /> Tukarkan Poin
+                        </button>
+                        <button onClick={() => showToast("Buka menu reservasi kamar untuk menambah saldo poin Anda.")} className="w-full sm:w-auto text-xs bg-white border border-gray-900 text-gray-900 hover:bg-gray-900 hover:text-white px-6 py-3.5 font-bold uppercase tracking-[0.15em] transition-all rounded-xl cursor-pointer">
+                            Earn Points
                         </button>
                     </div>
                 </div>
@@ -391,10 +394,10 @@ export default function MemberPortal() {
                                 </div>
                                 <FaStar className="text-orange-300 text-3xl" />
                             </div>
-                            <p className="text-xs text-gray-500 font-light mb-8 leading-relaxed">Tukarkan poin Anda dengan menginap gratis, sesi spa, atau makan malam romantis.</p>
-                            <span onClick={() => navigate("/rewards")} className="text-[10px] text-orange-500 font-bold uppercase tracking-[0.2em] cursor-pointer hover:text-gray-900 transition-colors border-b border-orange-500 pb-1 flex items-center gap-2 w-max">
-                                Rewards Catalog <FaArrowRight />
-                            </span>
+                            <p className="text-xs text-gray-500 font-light mb-6 leading-relaxed">Tukarkan poin Anda dengan menginap gratis, sesi spa, atau makan malam romantis.</p>
+                            <button onClick={() => navigate("/rewards")} className="w-full bg-gray-900 hover:bg-orange-500 text-white text-xs font-bold uppercase tracking-[0.15em] py-3.5 px-6 rounded-2xl flex items-center justify-center gap-2 transition-all shadow-md cursor-pointer">
+                                <FaGift className="text-orange-400" /> Tukarkan Poin Sekarang
+                            </button>
                         </div>
 
                         {/* Booking Widget */}
@@ -423,9 +426,9 @@ export default function MemberPortal() {
                                     <h3 className="text-xl font-serif text-white mt-4">Complimentary Spa</h3>
                                     <p className="text-xs text-gray-400 font-light mt-2 max-w-[200px] leading-relaxed">Tersedia 1 voucher spa Aura Retreat eksklusif untuk Anda.</p>
                                 </div>
-                                <span onClick={() => navigate("/rewards")} className="mt-8 text-[10px] text-orange-500 font-bold uppercase tracking-[0.2em] cursor-pointer hover:text-white transition-colors border-b border-orange-500 pb-1 flex items-center gap-2 w-max">
-                                    Claim Voucher <FaTicketAlt />
-                                </span>
+                                <button onClick={() => navigate("/rewards")} className="mt-6 w-full bg-orange-500 hover:bg-white hover:text-gray-900 text-white text-xs font-bold uppercase tracking-[0.15em] py-3.5 px-6 rounded-2xl flex items-center justify-center gap-2 transition-all shadow-md cursor-pointer">
+                                    <FaTicketAlt /> Klaim & Tukar Poin
+                                </button>
                             </div>
                         </div>
                     </div>
