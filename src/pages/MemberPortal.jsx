@@ -475,7 +475,7 @@ export default function MemberPortal() {
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                         {recommendedRooms.map((room) => (
-                            <div key={room.id} className="group cursor-pointer bg-white border border-gray-100 p-6 rounded-3xl hover:shadow-2xl hover:border-orange-300 transition-all shadow-sm">
+                            <div onClick={() => openBookingModal(room)} key={room.id} className="group cursor-pointer bg-white border border-gray-100 p-6 rounded-3xl hover:shadow-2xl hover:border-orange-300 transition-all shadow-sm">
                                 <div className="overflow-hidden mb-6 relative rounded-2xl">
                                     <img src={room.image} className="w-full h-[250px] object-cover group-hover:scale-105 transition-transform duration-1000" alt={room.title} />
                                     <div className="absolute top-4 right-4 bg-gray-900 text-white text-[9px] font-bold tracking-[0.2em] uppercase px-3 py-1 rounded-full shadow-md">{room.tag}</div>
@@ -488,7 +488,7 @@ export default function MemberPortal() {
                                         <p className="text-[10px] text-gray-400 tracking-[0.1em] uppercase">Member Rate</p>
                                         <p className="text-lg font-serif font-bold text-orange-600 mt-1">{room.price}</p>
                                     </div>
-                                    <span onClick={() => openBookingModal(room)} className="text-[10px] bg-gray-900 text-white font-bold uppercase tracking-[0.2em] px-5 py-2.5 rounded-xl group-hover:bg-orange-500 transition-all cursor-pointer shadow-sm">
+                                    <span className="text-[10px] bg-gray-900 text-white font-bold uppercase tracking-[0.2em] px-5 py-2.5 rounded-xl group-hover:bg-orange-500 transition-all cursor-pointer shadow-sm">
                                         Book Now
                                     </span>
                                 </div>
@@ -570,9 +570,9 @@ export default function MemberPortal() {
             </footer>
 
             {/* --- FLOATING AI CHAT WIDGET --- */}
-            <div className="fixed bottom-6 right-6 z-[100] flex flex-col items-end">
+            <div className="fixed bottom-6 right-6 z-[100] flex flex-col items-end pointer-events-none">
                 {/* Chat Window */}
-                <div className={`mb-4 w-80 bg-white border border-gray-200 shadow-2xl rounded-t-2xl rounded-bl-2xl overflow-hidden transition-all origin-bottom-right duration-300 ${isChatOpen ? 'scale-100 opacity-100' : 'scale-0 opacity-0'}`}>
+                <div className={`mb-4 w-80 bg-white border border-gray-200 shadow-2xl rounded-t-2xl rounded-bl-2xl overflow-hidden transition-all origin-bottom-right duration-300 ${isChatOpen ? 'scale-100 opacity-100 pointer-events-auto' : 'scale-0 opacity-0 pointer-events-none'}`}>
                     {/* Header */}
                     <div className="bg-gray-900 px-5 py-4 flex justify-between items-center text-white">
                         <div className="flex items-center gap-3">
@@ -584,7 +584,7 @@ export default function MemberPortal() {
                                 <p className="text-[9px] text-orange-200">Online 24/7</p>
                             </div>
                         </div>
-                        <button onClick={() => setIsChatOpen(false)} className="text-gray-400 hover:text-white transition-colors">
+                        <button onClick={() => setIsChatOpen(false)} className="text-gray-400 hover:text-white transition-colors cursor-pointer">
                             <FaTimes />
                         </button>
                     </div>
@@ -611,7 +611,7 @@ export default function MemberPortal() {
                                 placeholder="Type a message..." 
                                 className="flex-1 bg-gray-50 text-xs text-gray-700 outline-none rounded-full px-4 border border-gray-200 focus:border-orange-500 transition-colors"
                             />
-                            <button type="submit" className="w-10 h-10 bg-gray-900 hover:bg-orange-500 text-white rounded-full flex items-center justify-center transition-colors">
+                            <button type="submit" className="w-10 h-10 bg-gray-900 hover:bg-orange-500 text-white rounded-full flex items-center justify-center transition-colors cursor-pointer">
                                 <FaPaperPlane className="text-xs -ml-1" />
                             </button>
                         </form>
@@ -621,7 +621,7 @@ export default function MemberPortal() {
                 {/* Floating Action Button */}
                 <button 
                     onClick={() => setIsChatOpen(!isChatOpen)}
-                    className="w-14 h-14 bg-gray-900 hover:bg-orange-500 text-white shadow-[0_8px_20px_rgba(0,0,0,0.2)] rounded-full flex items-center justify-center transition-all hover:-translate-y-1 cursor-pointer"
+                    className="w-14 h-14 bg-gray-900 hover:bg-orange-500 text-white shadow-[0_8px_20px_rgba(0,0,0,0.2)] rounded-full flex items-center justify-center transition-all hover:-translate-y-1 cursor-pointer pointer-events-auto"
                 >
                     {isChatOpen ? <FaTimes className="text-xl" /> : <FaCommentDots className="text-xl" />}
                 </button>
