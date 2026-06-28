@@ -139,7 +139,7 @@ export default function LandingPage() {
                     ) : (
                         <>
                             <Link to="/login" className="text-[11px] font-bold tracking-[0.2em] text-gray-400 hover:text-orange-500 transition-colors hidden md:block uppercase">
-                                Staff Login
+                                Login
                             </Link>
                             <a href="#book" className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 text-[11px] font-bold tracking-[0.2em] uppercase transition-all">
                                 Book Your Stay
