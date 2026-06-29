@@ -29,16 +29,24 @@ export default function LandingPage() {
             const logged = localStorage.getItem("isLoggedIn") === "true";
             const role = localStorage.getItem("userRole") || "member";
             if (logged) {
-                setIsLoggedIn(true);
-                setUserRole(role);
+                if (role === "staff") {
+                    navigate("/dashboard", { replace: true });
+                } else {
+                    navigate("/member-portal", { replace: true });
+                }
+                return;
             } else {
                 const { data } = await supabase.auth.getSession();
                 if (data?.session) {
-                    setIsLoggedIn(true);
                     const dbRole = data.session.user?.user_metadata?.role || "member";
-                    setUserRole(dbRole);
                     localStorage.setItem("isLoggedIn", "true");
                     localStorage.setItem("userRole", dbRole);
+                    if (dbRole === "staff") {
+                        navigate("/dashboard", { replace: true });
+                    } else {
+                        navigate("/member-portal", { replace: true });
+                    }
+                    return;
                 }
             }
         };
@@ -92,13 +100,8 @@ export default function LandingPage() {
             return;
         }
 
-        if (!isLoggedIn) {
-            alert("Kamar tersedia! Silakan login atau daftar terlebih dahulu untuk melanjutkan reservasi.");
-            navigate("/login");
-        } else {
-            alert(`Kamar tersedia untuk tanggal ${checkIn} hingga ${checkOut}! Mengarahkan ke Portal...`);
-            navigate(userRole === "staff" ? "/dashboard" : "/member-portal");
-        }
+        alert("Kamar tersedia! Silakan login atau daftar terlebih dahulu untuk melanjutkan reservasi.");
+        navigate("/login");
     };
 
     const toggleFaq = (index) => {
@@ -124,25 +127,12 @@ export default function LandingPage() {
                 </div>
 
                 <div className="flex items-center gap-6 ml-auto">
-                    {isLoggedIn && userRole !== "staff" ? (
-                        <>
-                            <button onClick={handleLogout} className="text-[11px] font-bold tracking-[0.2em] text-gray-400 hover:text-orange-500 transition-colors hidden md:block uppercase cursor-pointer">
-                                Logout
-                            </button>
-                            <Link to={userRole === "staff" ? "/dashboard" : "/member-portal"} className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 text-[11px] font-bold tracking-[0.2em] uppercase transition-all inline-block">
-                                Go to Portal
-                            </Link>
-                        </>
-                    ) : (
-                        <>
-                            <Link to="/login" className="text-[11px] font-bold tracking-[0.2em] text-gray-400 hover:text-orange-500 transition-colors hidden md:block uppercase">
-                                Login
-                            </Link>
-                            <a href="#book" className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 text-[11px] font-bold tracking-[0.2em] uppercase transition-all">
-                                Book Your Stay
-                            </a>
-                        </>
-                    )}
+                    <Link to="/login" className="text-[11px] font-bold tracking-[0.2em] text-gray-400 hover:text-orange-500 transition-colors hidden md:block uppercase">
+                        Login
+                    </Link>
+                    <a href="#book" className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 text-[11px] font-bold tracking-[0.2em] uppercase transition-all">
+                        Book Your Stay
+                    </a>
                 </div>
             </nav>
 
@@ -159,17 +149,6 @@ export default function LandingPage() {
                     <FaStar className="mx-auto text-3xl md:text-4xl mb-4 text-white drop-shadow-md" />
                     <h1 className="text-4xl md:text-6xl font-serif tracking-[0.2em] uppercase mb-4 drop-shadow-md">Capella</h1>
                     <p className="text-[10px] md:text-xs font-bold tracking-[0.3em] uppercase mb-16 drop-shadow-md">Hotels and Resorts</p>
-                    
-                    {isLoggedIn && userRole !== "staff" ? (
-                        <div className="mt-2 mb-8 bg-black/50 backdrop-blur-md border border-orange-500/60 px-8 py-4 rounded-full inline-flex flex-col md:flex-row items-center gap-4 shadow-xl">
-                            <span className="text-xs md:text-sm font-serif tracking-widest text-orange-300">
-                                Welcome back, <strong className="text-white uppercase tracking-[0.1em]">{localStorage.getItem("registeredName") || "Capella Member"}</strong>!
-                            </span>
-                            <Link to={userRole === "staff" ? "/dashboard" : "/member-portal"} className="bg-orange-500 hover:bg-orange-600 text-white text-[10px] font-bold tracking-[0.2em] uppercase px-5 py-2 rounded-full transition-all">
-                                Open Portal →
-                            </Link>
-                        </div>
-                    ) : null}
 
                     <p className="text-lg md:text-2xl font-serif tracking-wide mt-6 md:mt-16 drop-shadow-md">Discover Your Bespoke Journey</p>
                 </div>
