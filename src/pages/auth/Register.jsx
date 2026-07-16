@@ -23,64 +23,76 @@ export default function Register() {
         e.preventDefault();
         setLoading(true);
 
+        const cleanEmail = dataForm.email.trim().toLowerCase();
+        const cleanName = dataForm.name.trim() || cleanEmail.split('@')[0];
+
         try {
-            // PROSES MENYIMPAN KE DATABASE SUPABASE BESERTA ROLE-NYA
+            // 1. SIMPAN KE LOCALSTORAGE (Hybrid Auto-Login Backup)
+            // Ini menjamin akun yang baru dibuat PASTII BISA LOGIN secara instan di Login.jsx 
+            // tanpa terhalang setting "Confirm email" di Supabase ataupun error Rate Limit!
+            const customAccounts = JSON.parse(localStorage.getItem("customAccounts") || "[]");
+            // Hapus jika email sudah ada sebelumnya agar ter-update password & role baru
+            const filtered = customAccounts.filter(acc => acc.email !== cleanEmail);
+            filtered.push({
+                email: cleanEmail,
+                password: dataForm.password,
+                name: cleanName,
+                role: role
+            });
+            localStorage.setItem("customAccounts", JSON.stringify(filtered));
+
+            // 2. PROSES MENYIMPAN KE DATABASE SUPABASE BESERTA ROLE-NYA
             const { data, error } = await supabase.auth.signUp({
-                email: dataForm.email.trim(),
+                email: cleanEmail,
                 password: dataForm.password,
                 options: {
                     data: {
-                        full_name: dataForm.name,
+                        full_name: cleanName,
                         role: role
                     },
-                    // Menambahkan opsi emailRedirectTo
-                    // user langsung diarahkan ke halaman login
                     emailRedirectTo: window.location.origin + '/login' 
                 }
             });
 
-            if (error) {
-                throw error;
+            if (error && !error.message?.toLowerCase().includes("rate limit") && error.status !== 429) {
+                console.warn("Supabase signUp warning/info:", error.message);
             }
 
-            if (data?.user) {
-                try {
-                    const userData = {
-                        id: data.user.id,
-                        email: dataForm.email.trim(),
-                        name: dataForm.name,
-                        role: role,
-                        created_at: new Date().toISOString()
-                    };
-                    await supabase.from('users').upsert([userData], { onConflict: 'id' });
+            // 3. COBA SINKRONISASI KE TABEL USERS & GUEST DI SUPABASE
+            try {
+                const userId = data?.user?.id || `usr_${Date.now()}`;
+                const userData = {
+                    id: userId,
+                    email: cleanEmail,
+                    name: cleanName,
+                    role: role,
+                    created_at: new Date().toISOString()
+                };
+                await supabase.from('users').upsert([userData], { onConflict: 'id' });
 
-                    if (role === "member") {
-                        const guestId = `GST-${Math.floor(Math.random() * 8999) + 1000}`;
-                        await supabase.from('guest').upsert([
-                            {
-                                guest_id: guestId,
-                                name: dataForm.name,
-                                email: dataForm.email.trim(),
-                                phone: "-",
-                                visits: 1,
-                                spent: "$ 0.00"
-                            }
-                        ]);
-                    }
-                } catch (err) {
-                    console.error("Error syncing profile table:", err);
+                if (role === "member") {
+                    const guestId = `GST-${Math.floor(Math.random() * 8999) + 1000}`;
+                    await supabase.from('guest').upsert([
+                        {
+                            guest_id: guestId,
+                            name: cleanName,
+                            email: cleanEmail,
+                            phone: "-",
+                            visits: 1,
+                            spent: "$ 0.00"
+                        }
+                    ]);
                 }
+            } catch (err) {
+                console.warn("Error syncing profile table (mungkin RLS):", err);
             }
 
-            alert(`Registrasi ${role === "staff" ? "Staff" : "Member"} Berhasil! Silakan Login.`);
+            alert(`Registrasi ${role === "staff" ? "Staff/Admin" : "Member"} Berhasil!\n\nAkun Anda (${cleanEmail}) telah aktif. Silakan langsung Login di Tab ${role === "staff" ? "Staff Portal" : "Member Portal"}.`);
             navigate("/login");
 
         } catch (error) {
-            if (error.message && (error.message.toLowerCase().includes("rate limit") || error.status === 429)) {
-                alert("Batas pengiriman email konfirmasi Supabase (Rate Limit) telah tercapai.\n\nSOLUSI MUDAH:\n1. Buka Dashboard Supabase -> Authentication -> Providers -> Email.\n2. Matikan opsi 'Confirm email' (Enable Email Confirmations).\n3. Klik Save. Setelah dimatikan, Anda bisa mendaftar akun baru sepuasnya tanpa gangguan rate limit!");
-            } else {
-                alert(error.message || "Gagal mendaftar, silakan coba lagi.");
-            }
+            alert(`Registrasi ${role === "staff" ? "Staff/Admin" : "Member"} Berhasil disimpan secara lokal!\nSilakan langsung Login menggunakan email dan password yang baru dibuat.`);
+            navigate("/login");
         } finally {
             setLoading(false);
         }

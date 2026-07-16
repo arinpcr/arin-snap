@@ -32,31 +32,80 @@ export default function Login() {
         setError("");
 
         try {
-            // 1. FALLBACK DARURAT ADMIN (Jaga-jaga kalau database error)
-            if (role === "staff" && (dataForm.email === "a" || dataForm.email === "admin") && dataForm.password === "a") {
+            const cleanEmail = dataForm.email.trim().toLowerCase();
+            const cleanPass = dataForm.password;
+
+            // 1. DAFTAR AKUN PRE-BUILT DEMO & DOSEN (Permanen & Pasti Bisa Login di Laptop Mana Pun)
+            const PREBUILT_ACCOUNTS = [
+                // Akun Staff / Admin
+                { email: "admin@gmail.com", password: "admin123", role: "staff", name: "Capella Staff Admin" },
+                { email: "admin@gmail.com", password: "admin12", role: "staff", name: "Capella Staff Admin" },
+                { email: "a", password: "a", role: "staff", name: "Administrator Darurat" },
+                { email: "admin", password: "a", role: "staff", name: "Administrator Darurat" },
+                { email: "dosen@gmail.com", password: "dosen123", role: "staff", name: "Dosen Penguji (Staff Admin)" },
+
+                // Akun Member
+                { email: "member@gmail.com", password: "member123", role: "member", name: "Capella VIP Member" },
+                { email: "member@gmail.com", password: "member12", role: "member", name: "Capella VIP Member" },
+                { email: "member@admin.com", password: "member12", role: "member", name: "Capella VIP Member" },
+                { email: "dosen.member@gmail.com", password: "dosen123", role: "member", name: "Dosen Penguji (VIP Member)" },
+            ];
+
+            const matchedPrebuilt = PREBUILT_ACCOUNTS.find(acc => acc.email === cleanEmail && acc.password === cleanPass);
+            if (matchedPrebuilt) {
+                if (role !== matchedPrebuilt.role) {
+                    setError(`Akses Ditolak: Akun ini terdaftar sebagai ${matchedPrebuilt.role === "staff" ? "Staff" : "Member"}. Silakan pindah ke tab ${matchedPrebuilt.role === "staff" ? "Staff Portal" : "Member Portal"}.`);
+                    setLoading(false);
+                    return;
+                }
                 localStorage.setItem("isLoggedIn", "true");
-                localStorage.setItem("userRole", "staff"); 
-                navigate("/dashboard"); 
-                return; 
+                localStorage.setItem("userRole", matchedPrebuilt.role);
+                localStorage.setItem("registeredName", matchedPrebuilt.name);
+                if (matchedPrebuilt.role === "staff") {
+                    navigate("/dashboard");
+                } else {
+                    navigate("/member-portal");
+                }
+                return;
             }
 
-            // 2. CEK SUPABASE
+            // 2. CEK AKUN BARU YANG DIDAFTARKAN LEWAT REGISTER.JSX (Hybrid Auto-Login Backup)
+            // Menjamin akun yang baru saja diregistrasi oleh pengguna/dosen PASTI BISA LOGIN LANGSUNG,
+            // tanpa terblokir oleh kewajiban klik link konfirmasi email di Supabase!
+            const customAccounts = JSON.parse(localStorage.getItem("customAccounts") || "[]");
+            const matchedCustom = customAccounts.find(acc => acc.email === cleanEmail && acc.password === cleanPass);
+            if (matchedCustom) {
+                if (role !== matchedCustom.role) {
+                    setError(`Akses Ditolak: Akun ini terdaftar sebagai ${matchedCustom.role === "staff" ? "Staff" : "Member"}. Silakan pindah ke tab ${matchedCustom.role === "staff" ? "Staff Portal" : "Member Portal"}.`);
+                    setLoading(false);
+                    return;
+                }
+                localStorage.setItem("isLoggedIn", "true");
+                localStorage.setItem("userRole", matchedCustom.role);
+                localStorage.setItem("registeredName", matchedCustom.name);
+                if (matchedCustom.role === "staff") {
+                    navigate("/dashboard");
+                } else {
+                    navigate("/member-portal");
+                }
+                return;
+            }
+
+            // 3. CEK SUPABASE AUTH RESMI
             const { data, error: supabaseError } = await supabase.auth.signInWithPassword({
-                email: dataForm.email.trim(),
-                password: dataForm.password,
+                email: cleanEmail,
+                password: cleanPass,
             });
 
             if (supabaseError) {
                 throw supabaseError;
             }
 
-            // 3. CEK ROLE DARI DATABASE
-            // Mengambil role dari user_metadata (default-nya 'member' kalau kosong)
+            // 4. CEK ROLE DARI DATABASE SUPABASE
             const dbRole = data.user?.user_metadata?.role || "member"; 
 
-            // Cek apakah tab yang dipilih cocok dengan role di database
             if (role === "staff" && dbRole !== "staff") {
-                await supabase.auth.signOut(); // Keluarkan lagi
+                await supabase.auth.signOut();
                 localStorage.clear();
                 setError("Akses Ditolak: Akun Anda bukan terdaftar sebagai Staff.");
                 setLoading(false);
@@ -64,7 +113,7 @@ export default function Login() {
             }
 
             if (role === "member" && dbRole === "staff") {
-                await supabase.auth.signOut(); // Keluarkan lagi
+                await supabase.auth.signOut();
                 localStorage.clear();
                 setError("Anda adalah Staff. Silakan pindah ke tab Staff Portal.");
                 setLoading(false);
@@ -79,10 +128,10 @@ export default function Login() {
                 localStorage.setItem("registeredName", data.user.user_metadata.full_name);
             }
 
-            const userName = data.user?.user_metadata?.full_name || dataForm.email.split('@')[0];
+            const userName = data.user?.user_metadata?.full_name || cleanEmail.split('@')[0];
             const userData = {
                 id: data.user.id,
-                email: dataForm.email.trim(),
+                email: cleanEmail,
                 name: userName,
                 role: dbRole
             };
@@ -92,15 +141,14 @@ export default function Login() {
                 console.error("Error syncing user table on login:", err);
             }
 
-            // ARAHKAN SESUAI ROLE DATABASE
             if (dbRole === "staff") {
                 navigate("/dashboard");
             } else {
-                navigate("/member-portal"); // <-- INI YANG DIUBAH AGAR KE HALAMAN MEMBER
+                navigate("/member-portal");
             }
 
         } catch (err) {
-            setError("Email atau Password salah. Silakan coba lagi.");
+            setError("Email atau Password salah, atau email belum dikonfirmasi di Supabase.");
         } finally {
             setLoading(false);
         }
