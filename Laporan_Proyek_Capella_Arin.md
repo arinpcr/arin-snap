@@ -389,24 +389,19 @@ Otomatisasi pelayanan pada Capella Hotel berfokus pada ketersediaan bantuan tanp
 Untuk keperluan demonstrasi, pengujian fitur, dan evaluasi tugas pada proyek **arin-snap (Capella Hotel & Resort)** oleh Dosen Penguji maupun manajemen, berikut adalah daftar kredensial resmi dan permanen yang dapat langsung digunakan pada perangkat atau browser mana pun:
 
 ### 1. Akses Staf / Admin Hotel (*Admin Portal*)
-Gunakan akun berikut pada halaman **Login** dengan memilih Tab **Staff Portal**:
-- **Akun Utama / Dosen Penguji:**
+Gunakan salah satu dari dua cara tercepat pada halaman **Login**:
+- **Cara Tercepat (Fitur Baru):** Klik langsung tombol **[🚀 Staff Admin]** pada panel *Quick Demo Access (1-Click Login)* yang tersedia di atas form.
+- **Atau Ketik Manual di Tab Staff Portal:**
   - **Email:** `admin@gmail.com`
-  - **Password:** `admin123` *(atau `admin12`)*
-- **Akun Alternatif:**
-  - **Email:** `dosen@gmail.com` | **Password:** `dosen123`
-- **Fallback Darurat Cepat (*Quick Emergency Login*):**
-  - **Email:** `a` *(atau `admin`)*
-  - **Password:** `a`
+  - **Password:** `admin123` *(atau `capella123` / `arin123` untuk menghindari pop-up Chrome)*
 - **Cakupan Akses:** Membuka penuh pusat kendali `Dashboard.jsx`, manajemen `Bookings.jsx`, data profil `Guests.jsx`, kontrol stok `Inventory.jsx`, serta panel evaluasi `AdminReviews.jsx`.
 
 ### 2. Akses Member / Tamu Terdaftar (*Member Portal*)
-Gunakan akun berikut pada halaman **Login** dengan memilih Tab **Member Portal**:
-- **Akun Utama / Dosen Penguji:**
+Gunakan salah satu dari dua cara tercepat pada halaman **Login**:
+- **Cara Tercepat (Fitur Baru):** Klik langsung tombol **[✨ Member VIP]** pada panel *Quick Demo Access (1-Click Login)* yang tersedia di atas form.
+- **Atau Ketik Manual di Tab Member Portal:**
   - **Email:** `member@gmail.com`
-  - **Password:** `member123` *(atau `member12`)*
-- **Akun Alternatif:**
-  - **Email:** `dosen.member@gmail.com` | **Password:** `dosen123`
+  - **Password:** `member123` *(atau `capella123` / `arin123` untuk menghindari pop-up Chrome)*
 - **Cakupan Akses:** Membuka penuh `MemberPortal.jsx`, fitur *Self-Service Booking Modal*, serta pemantauan poin dan penukaran hadiah di `Rewards.jsx`.
 
 ### 3. Akses Pengunjung Publik (*Guest Pre-Login*)
