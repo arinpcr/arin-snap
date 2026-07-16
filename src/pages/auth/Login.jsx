@@ -40,6 +40,8 @@ export default function Login() {
                 // Akun Staff / Admin
                 { email: "admin@gmail.com", password: "admin123", role: "staff", name: "Capella Staff Admin" },
                 { email: "admin@gmail.com", password: "admin12", role: "staff", name: "Capella Staff Admin" },
+                { email: "admin@gmail.com", password: "capella123", role: "staff", name: "Capella Staff Admin" },
+                { email: "admin@gmail.com", password: "arin123", role: "staff", name: "Capella Staff Admin" },
                 { email: "a", password: "a", role: "staff", name: "Administrator Darurat" },
                 { email: "admin", password: "a", role: "staff", name: "Administrator Darurat" },
                 { email: "dosen@gmail.com", password: "dosen123", role: "staff", name: "Dosen Penguji (Staff Admin)" },
@@ -47,6 +49,8 @@ export default function Login() {
                 // Akun Member
                 { email: "member@gmail.com", password: "member123", role: "member", name: "Capella VIP Member" },
                 { email: "member@gmail.com", password: "member12", role: "member", name: "Capella VIP Member" },
+                { email: "member@gmail.com", password: "capella123", role: "member", name: "Capella VIP Member" },
+                { email: "member@gmail.com", password: "arin123", role: "member", name: "Capella VIP Member" },
                 { email: "member@admin.com", password: "member12", role: "member", name: "Capella VIP Member" },
                 { email: "dosen.member@gmail.com", password: "dosen123", role: "member", name: "Dosen Penguji (VIP Member)" },
             ];
