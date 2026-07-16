@@ -57,11 +57,7 @@ export default function Login() {
 
             const matchedPrebuilt = PREBUILT_ACCOUNTS.find(acc => acc.email === cleanEmail && acc.password === cleanPass);
             if (matchedPrebuilt) {
-                if (role !== matchedPrebuilt.role) {
-                    setError(`Akses Ditolak: Akun ini terdaftar sebagai ${matchedPrebuilt.role === "staff" ? "Staff" : "Member"}. Silakan pindah ke tab ${matchedPrebuilt.role === "staff" ? "Staff Portal" : "Member Portal"}.`);
-                    setLoading(false);
-                    return;
-                }
+                // Otomatis arahkan sesuai role akun tanpa perlu rewel pilih tab!
                 localStorage.setItem("isLoggedIn", "true");
                 localStorage.setItem("userRole", matchedPrebuilt.role);
                 localStorage.setItem("registeredName", matchedPrebuilt.name);
@@ -74,16 +70,10 @@ export default function Login() {
             }
 
             // 2. CEK AKUN BARU YANG DIDAFTARKAN LEWAT REGISTER.JSX (Hybrid Auto-Login Backup)
-            // Menjamin akun yang baru saja diregistrasi oleh pengguna/dosen PASTI BISA LOGIN LANGSUNG,
-            // tanpa terblokir oleh kewajiban klik link konfirmasi email di Supabase!
             const customAccounts = JSON.parse(localStorage.getItem("customAccounts") || "[]");
             const matchedCustom = customAccounts.find(acc => acc.email === cleanEmail && acc.password === cleanPass);
             if (matchedCustom) {
-                if (role !== matchedCustom.role) {
-                    setError(`Akses Ditolak: Akun ini terdaftar sebagai ${matchedCustom.role === "staff" ? "Staff" : "Member"}. Silakan pindah ke tab ${matchedCustom.role === "staff" ? "Staff Portal" : "Member Portal"}.`);
-                    setLoading(false);
-                    return;
-                }
+                // Otomatis arahkan sesuai role akun tanpa perlu rewel pilih tab!
                 localStorage.setItem("isLoggedIn", "true");
                 localStorage.setItem("userRole", matchedCustom.role);
                 localStorage.setItem("registeredName", matchedCustom.name);
